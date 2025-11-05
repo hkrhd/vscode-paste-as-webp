@@ -1,10 +1,9 @@
-import * as path from "path";
-import * as fs from "fs";
+import * as vscode from "vscode";
 import sharp from "sharp";
 
 export interface ImageProcessor {
     convertToWebP(buffer: Buffer, quality?: number): Promise<Buffer>;
-    saveImage(buffer: Buffer, filePath: string): Promise<void>;
+    saveImage(buffer: Buffer, fileUri: vscode.Uri): Promise<void>;
     generateFileName(prefix?: string): string;
 }
 
@@ -15,10 +14,15 @@ export class DefaultImageProcessor implements ImageProcessor {
             .toBuffer();
     }
 
-    async saveImage(buffer: Buffer, filePath: string): Promise<void> {
-        const dir = path.dirname(filePath);
-        await fs.promises.mkdir(dir, { recursive: true });
-        await fs.promises.writeFile(filePath, buffer);
+    async saveImage(buffer: Buffer, fileUri: vscode.Uri): Promise<void> {
+        // Obj: Use VSCode FileSystem API for remote environment support (WSL, Remote SSH, etc.)
+        const dirUri = vscode.Uri.joinPath(fileUri, '..');
+        try {
+            await vscode.workspace.fs.stat(dirUri);
+        } catch {
+            await vscode.workspace.fs.createDirectory(dirUri);
+        }
+        await vscode.workspace.fs.writeFile(fileUri, buffer);
     }
 
     generateFileName(prefix: string = "image"): string {

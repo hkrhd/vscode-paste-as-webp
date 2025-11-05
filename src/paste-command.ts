@@ -3,6 +3,7 @@ import { ClipboardProvider } from "./clipboard";
 import { ImageProcessor, ImageUtils } from "./image-processor";
 import { FileUtils, PathValidator } from "./file-utils";
 import { ConfigProvider, ConfigUtils } from "./config";
+import { logger } from "./logger";
 
 export interface MessageProvider {
     t(key: string, ...args: any[]): string;
@@ -54,33 +55,33 @@ export class PasteCommand {
         const textData = await vscode.env.clipboard.readText();
         let imageBuffer: Buffer | null = null;
 
-        console.log('[PasteCommand] textData length:', textData.length);
+        logger.debug('PasteCommand', 'textData length:', textData.length);
 
         // Base64画像データかチェック
         if (ImageUtils.isBase64Image(textData)) {
-            console.log('[PasteCommand] Base64 image detected in clipboard');
+            logger.debug('PasteCommand', 'Base64 image detected in clipboard');
             const base64Data = ImageUtils.extractBase64Data(textData);
             if (base64Data) {
                 imageBuffer = ImageUtils.bufferFromBase64(base64Data);
-                console.log('[PasteCommand] Base64 image buffer created, size:', imageBuffer.length);
+                logger.debug('PasteCommand', 'Base64 image buffer created, size:', imageBuffer.length);
             }
         }
 
         // プラットフォーム固有のクリップボード処理
         if (!imageBuffer && textData.length === 0) {
-            console.log('[PasteCommand] Attempting platform-specific clipboard access');
+            logger.debug('PasteCommand', 'Attempting platform-specific clipboard access');
             imageBuffer = await this.deps.clipboardProvider.getImageBuffer();
-            console.log('[PasteCommand] Platform clipboard result:', imageBuffer ? `buffer size: ${imageBuffer.length}` : 'null');
+            logger.debug('PasteCommand', 'Platform clipboard result:', imageBuffer ? `buffer size: ${imageBuffer.length}` : 'null');
         }
 
         // 画像データがない場合はテキストとして処理
         if (!imageBuffer) {
-            console.log('[PasteCommand] No image data, pasting as text');
+            logger.debug('PasteCommand', 'No image data, pasting as text');
             await this.pasteAsText(editor, textData);
             return;
         }
 
-        console.log('[PasteCommand] Processing as image, buffer size:', imageBuffer.length);
+        logger.debug('PasteCommand', 'Processing as image, buffer size:', imageBuffer.length);
 
         // 画像として処理
         await this.pasteAsImage(editor, imageBuffer, config, workspaceFolder);
@@ -128,8 +129,9 @@ export class PasteCommand {
         // WebPに変換
         const webpBuffer = await this.deps.imageProcessor.convertToWebP(imageBuffer, config.quality);
 
-        // 画像を保存
-        await this.deps.imageProcessor.saveImage(webpBuffer, imagePath);
+        // 画像を保存 (Obj: Convert path to Uri for remote environment support)
+        const imageUri = vscode.Uri.file(imagePath);
+        await this.deps.imageProcessor.saveImage(webpBuffer, imageUri);
 
         // マークダウンファイルからの相対パスを取得
         const relativePath = this.deps.fileUtils.getMarkdownRelativePath(

@@ -2,33 +2,32 @@
 
 ## Features
 
-* **config**: Add `useWorkspaceRoot` setting to control image save location base path
-  * `false` (default): Save images relative to Markdown file location
-  * `true`: Save images relative to workspace root (previous behavior)
-  * This change improves flexibility for different project structures
+- **config**: Add `useWorkspaceRoot` setting to control image save location base path
+  - `false` (default): Save images relative to Markdown file location
+  - `true`: Save images relative to workspace root (previous behavior)
+  - This change improves flexibility for different project structures
 
 ## BREAKING CHANGES
 
-* **config**: Renamed configuration `imagePath` to `imageDir` for clarity
-  * Migration: Update your settings.json from `vsc-webp-paster.imagePath` to `vsc-webp-paster.imageDir`
-  * Old configuration will no longer work and must be updated manually
-* **behavior**: Default image save location changed from workspace root to Markdown file location
-  * To restore previous behavior, set `vsc-webp-paster.useWorkspaceRoot: true` in settings.json
+- **config**: Renamed configuration `imagePath` to `imageDir` for clarity
+  - Migration: Update your settings.json from `vsc-webp-paster.imagePath` to `vsc-webp-paster.imageDir`
+  - Old configuration will no longer work and must be updated manually
+- **behavior**: Default image save location changed from workspace root to Markdown file location
+  - To restore previous behavior, set `vsc-webp-paster.useWorkspaceRoot: true` in settings.json
 
 ## [0.4.2](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.4.1...v0.4.2) (2025-11-05)
 
-
 ### Bug Fixes
 
-* CHANGELOG整理とドキュメント改善 ([a98b992](https://github.com/hkrhd/vscode-paste-as-webp/commit/a98b992c60a50c9edcd9e3ecfa3be99c442cdf95))
+- CHANGELOG整理とドキュメント改善 ([a98b992](https://github.com/hkrhd/vscode-paste-as-webp/commit/a98b992c60a50c9edcd9e3ecfa3be99c442cdf95))
 
 ## [0.4.1](https://github.com/hkrhd/vscode-paste-as-webp/releases/tag/v0.4.1) (2025-11-05)
 
 ### Bug Fixes
 
-* SSH・WSL環境でのクリップボード取得動作を改善
-* Linux環境でのクリップボード対応（xclip/wl-paste）
-* SSHリモート環境でのクリップボード処理とWindows検出ロジックを改善
+- SSH・WSL環境でのクリップボード取得動作を改善
+- Linux環境でのクリップボード対応（xclip/wl-paste）
+- SSHリモート環境でのクリップボード処理とWindows検出ロジックを改善
 
 # Change Log
 

@@ -4,6 +4,7 @@ import { DefaultImageProcessor } from "./image-processor";
 import { DefaultFileUtils } from "./file-utils";
 import { DefaultConfigProvider } from "./config";
 import { PasteCommand, VSCodeMessageProvider } from "./paste-command";
+import { logger } from "./logger";
 
 // ファクトリ関数をエクスポートして、テストでオーバーライドできるようにする
 export let createPasteCommand = (messageProvider: VSCodeMessageProvider) => {
@@ -23,7 +24,7 @@ export let createPasteCommand = (messageProvider: VSCodeMessageProvider) => {
 };
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log('Congratulations, your extension "vsc-webp-paster" is now active!');
+    logger.debug('Extension', 'Extension "vsc-webp-paster" is now active!');
 
     // 依存関係を初期化
     const clipboardProvider = new DefaultClipboardProvider();
@@ -59,7 +60,7 @@ export function activate(context: vscode.ExtensionContext) {
             } catch (error) {
                 const errorMessage = error instanceof Error ? error.message : String(error);
                 const fullError = error instanceof Error ? error.stack : String(error);
-                console.error("[Extension] Error occurred:", fullError);
+                logger.error('Extension', "Error occurred:", fullError);
                 vscode.window.showErrorMessage(messageProvider.t('extension.error', errorMessage));
             }
         }

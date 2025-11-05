@@ -1,9 +1,8 @@
 import * as path from "path";
-import * as fs from "fs";
+import * as vscode from "vscode";
 
 export interface FileUtils {
     calculateRelativePath(from: string, to: string): string;
-    ensureDirectoryExists(dirPath: string): Promise<void>;
     generateImagePath(workspacePath: string, imageDir: string, fileName: string, mdFilePath?: string, useWorkspaceRoot?: boolean): string;
     getMarkdownRelativePath(mdFilePath: string, imagePath: string): string;
 }
@@ -11,10 +10,6 @@ export interface FileUtils {
 export class DefaultFileUtils implements FileUtils {
     calculateRelativePath(from: string, to: string): string {
         return path.relative(from, to).replace(/\\/g, "/");
-    }
-
-    async ensureDirectoryExists(dirPath: string): Promise<void> {
-        await fs.promises.mkdir(dirPath, { recursive: true });
     }
 
     generateImagePath(workspacePath: string, imageDir: string, fileName: string, mdFilePath?: string, useWorkspaceRoot?: boolean): string {

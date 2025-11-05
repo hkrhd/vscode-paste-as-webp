@@ -1,6 +1,7 @@
 import { exec, execSync } from "child_process";
 import * as fs from "fs";
 import * as vscode from "vscode";
+import { logger } from "./logger";
 
 export interface ClipboardProvider {
     getImageBuffer(): Promise<Buffer | null>;
@@ -12,32 +13,32 @@ export class DefaultClipboardProvider implements ClipboardProvider {
         const platform = process.platform;
         const remoteName = vscode.env.remoteName; // 'wsl' | 'ssh-remote' | undefined
 
-        console.log('[Clipboard] platform:', platform, 'remoteName:', remoteName);
+        logger.debug('Clipboard', 'platform:', platform, 'remoteName:', remoteName);
 
         // Remote環境（WSL/SSH）でLinux上で動作している場合
         if (remoteName && platform === "linux") {
             // WSLの場合は確実にWindowsクライアント
             if (remoteName === 'wsl') {
-                console.log('[Clipboard] WSL detected, using Windows clipboard');
+                logger.debug('Clipboard', 'WSL detected, using Windows clipboard');
                 return this.getWindowsImageBuffer();
             }
 
             // SSH環境の場合、PowerShell存在チェックでクライアントOSを判定
             if (remoteName === 'ssh-remote') {
                 const hasPowerShell = await this.checkPowerShellExists();
-                console.log('[Clipboard] SSH detected, PowerShell exists:', hasPowerShell);
+                logger.debug('Clipboard', 'SSH detected, PowerShell exists:', hasPowerShell);
 
                 if (!hasPowerShell) {
                     // PowerShellが存在しない = 非Windowsクライアント
                     // UI側で実行されているため、process.platformはクライアントOSを返す
                     const clientPlatform = process.platform;
-                    console.log('[Clipboard] Non-Windows SSH client (no PowerShell), client platform:', clientPlatform);
+                    logger.debug('Clipboard', 'Non-Windows SSH client (no PowerShell), client platform:', clientPlatform);
 
                     if (clientPlatform === 'darwin') {
-                        console.log('[Clipboard] Using macOS clipboard');
+                        logger.debug('Clipboard', 'Using macOS clipboard');
                         return this.getMacOSImageBuffer();
                     } else if (clientPlatform === 'linux') {
-                        console.log('[Clipboard] Using Linux clipboard');
+                        logger.debug('Clipboard', 'Using Linux clipboard');
                         return this.getLinuxImageBuffer();
                     }
 
@@ -45,7 +46,7 @@ export class DefaultClipboardProvider implements ClipboardProvider {
                 }
 
                 // PowerShellが存在する = Windowsクライアント
-                console.log('[Clipboard] Windows SSH client (PowerShell found), using Windows clipboard');
+                logger.debug('Clipboard', 'Windows SSH client (PowerShell found), using Windows clipboard');
                 return this.getWindowsImageBuffer();
             }
 
@@ -75,10 +76,10 @@ export class DefaultClipboardProvider implements ClipboardProvider {
         return new Promise((resolve) => {
             exec('command -v powershell.exe', (error, stdout) => {
                 if (error || !stdout.trim()) {
-                    console.log('[Clipboard] powershell.exe not found');
+                    logger.debug('Clipboard', 'powershell.exe not found');
                     resolve(false);
                 } else {
-                    console.log('[Clipboard] powershell.exe found at:', stdout.trim());
+                    logger.debug('Clipboard', 'powershell.exe found at:', stdout.trim());
                     resolve(true);
                 }
             });
@@ -107,7 +108,7 @@ export class DefaultClipboardProvider implements ClipboardProvider {
                 return imageBuffer;
             }
         } catch (error) {
-            console.error("Failed to get image from clipboard on macOS:", error);
+            logger.error('Clipboard', "Failed to get image from clipboard on macOS:", error);
         }
         return null;
     }
@@ -129,7 +130,7 @@ export class DefaultClipboardProvider implements ClipboardProvider {
             const result = await this.execPowerShell(powerShellScript);
             return result ? Buffer.from(result, "base64") : null;
         } catch (error) {
-            console.error("クリップボード取得エラー:", error);
+            logger.error('Clipboard', "クリップボード取得エラー:", error);
             return null;
         }
     }
@@ -140,21 +141,21 @@ export class DefaultClipboardProvider implements ClipboardProvider {
             // Wayland (wl-paste) を優先的に試す
             const hasWlPaste = await this.checkCommandExists('wl-paste');
             if (hasWlPaste) {
-                console.log('[Clipboard] Using wl-paste for Wayland');
+                logger.debug('Clipboard', 'Using wl-paste for Wayland');
                 return await this.execLinuxClipboardCommand('wl-paste -t image/png');
             }
 
             // X11 (xclip) を試す
             const hasXclip = await this.checkCommandExists('xclip');
             if (hasXclip) {
-                console.log('[Clipboard] Using xclip for X11');
+                logger.debug('Clipboard', 'Using xclip for X11');
                 return await this.execLinuxClipboardCommand('xclip -selection clipboard -t image/png -o');
             }
 
-            console.error('[Clipboard] No clipboard tool found (wl-paste or xclip required)');
+            logger.error('Clipboard', 'No clipboard tool found (wl-paste or xclip required)');
             return null;
         } catch (error) {
-            console.error("Failed to get image from clipboard on Linux:", error);
+            logger.error('Clipboard', "Failed to get image from clipboard on Linux:", error);
             return null;
         }
     }
@@ -174,13 +175,13 @@ export class DefaultClipboardProvider implements ClipboardProvider {
             exec(command, { encoding: 'buffer', maxBuffer: 10 * 1024 * 1024 }, (error, stdout) => {
                 if (error) {
                     // クリップボードに画像がない場合もエラーになるため、詳細ログは出さない
-                    console.log('[Clipboard] Linux clipboard command failed (no image?):', error.message);
+                    logger.debug('Clipboard', 'Linux clipboard command failed (no image?):', error.message);
                     resolve(null);
                 } else if (stdout && stdout.length > 0) {
-                    console.log('[Clipboard] Linux clipboard image retrieved, size:', stdout.length);
+                    logger.debug('Clipboard', 'Linux clipboard image retrieved, size:', stdout.length);
                     resolve(stdout);
                 } else {
-                    console.log('[Clipboard] Linux clipboard returned empty data');
+                    logger.debug('Clipboard', 'Linux clipboard returned empty data');
                     resolve(null);
                 }
             });
@@ -211,7 +212,7 @@ export class DefaultClipboardProvider implements ClipboardProvider {
 
             exec(command, { encoding: "utf-8" }, (error, stdout, stderr) => {
                 if (error || stderr) {
-                    console.error("実行エラー:", stderr || error);
+                    logger.error('Clipboard', "実行エラー:", stderr || error);
                     resolve(null);
                 } else {
                     resolve(stdout.trim());

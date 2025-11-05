@@ -40,13 +40,13 @@
 }
 ```
 
-
 ## 📋 要件
 
 - VSCode 1.73.0以上
 - darwin-arm64, win32-x64, linux-x64, linux-arm64
 
 **クリップボード取得方法:**
+
 - **Windows**: PowerShell (.NET System.Windows.Forms.Clipboard)
 - **macOS**: AppleScript (osascript)
 - **Linux**: xclip (X11) または wl-paste (Wayland) - インストール必要

@@ -4,6 +4,7 @@ export interface ExtensionConfig {
     namingConvention: string;
     insertPattern: string;
     useWorkspaceRoot: boolean;
+    debugMode: boolean;
 }
 
 export interface ConfigProvider {
@@ -13,7 +14,6 @@ export interface ConfigProvider {
 
 import * as vscode from 'vscode';
 import * as path from 'path';
-import * as fs from 'fs';
 import { MessageProvider } from './paste-command';
 
 export class VSCodeConfigMessageProvider implements MessageProvider {
@@ -37,7 +37,8 @@ export class DefaultConfigProvider implements ConfigProvider {
             quality: this.vscodeConfig.get("quality") || 80,
             namingConvention: this.vscodeConfig.get("namingConvention") || "image-${timestamp}",
             insertPattern: this.vscodeConfig.get("insertPattern") || "![${fileName}](${relativePath})",
-            useWorkspaceRoot: this.vscodeConfig.get("useWorkspaceRoot") ?? false
+            useWorkspaceRoot: this.vscodeConfig.get("useWorkspaceRoot") ?? false,
+            debugMode: this.vscodeConfig.get("debugMode") ?? false
         };
     }
 
@@ -112,8 +113,12 @@ export class ConfigUtils {
         while (true) {
             fileName = this.expandNamingConvention(pattern, seq) + ".webp";
             const fullPath = path.join(targetDir, fileName);
+            const fileUri = vscode.Uri.file(fullPath);
 
-            if (!fs.existsSync(fullPath)) {
+            // Obj: Use VSCode FileSystem API for remote environment support
+            try {
+                await vscode.workspace.fs.stat(fileUri);
+            } catch {
                 return fileName;
             }
 
@@ -128,7 +133,8 @@ export class ConfigUtils {
             quality: 80,
             namingConvention: "image-${timestamp}",
             insertPattern: "![${fileName}](${relativePath})",
-            useWorkspaceRoot: false
+            useWorkspaceRoot: false,
+            debugMode: false
         };
     }
 }

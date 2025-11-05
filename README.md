@@ -46,6 +46,7 @@ See configuration descriptions for details
 - darwin-arm64, win32-x64, linux-x64, linux-arm64
 
 **Clipboard Access Methods:**
+
 - **Windows**: PowerShell (.NET System.Windows.Forms.Clipboard)
 - **macOS**: AppleScript (osascript)
 - **Linux**: xclip (X11) or wl-paste (Wayland) - install required
