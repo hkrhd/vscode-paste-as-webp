@@ -1,3 +1,10 @@
+## [0.5.7](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.6...v0.5.7) (2025-11-05)
+
+
+### Bug Fixes
+
+* MessageProvider共通化とエラー表示の多言語化対応 ([9533650](https://github.com/hkrhd/vscode-paste-as-webp/commit/9533650ff01103a123b88c11b2c0d18b196fd95a))
+
 ## [0.5.6](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.5...v0.5.6) (2025-11-05)
 
 
