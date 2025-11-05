@@ -1,21 +1,10 @@
-## [1.0.2](https://github.com/hkrhd/vscode-paste-as-webp/compare/v1.0.1...v1.0.2) (2025-11-04)
-
-
-### Bug Fixes
-
-* SSHリモート環境でのクリップボード処理とWindows検出ロジックを改善 ([39e72cf](https://github.com/hkrhd/vscode-paste-as-webp/commit/39e72cfd3a69d19792ce9c606cb9fa3183e960bf))
-
-## [0.4.2](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.4.0...v0.4.2) (2025-11-04)
+## [0.4.1](https://github.com/hkrhd/vscode-paste-as-webp/releases/tag/v0.4.1) (2025-11-05)
 
 ### Bug Fixes
 
-- semantic-releaseでPATを使用してワークフローをトリガー ([4563ec8](https://github.com/hkrhd/vscode-paste-as-webp/commit/4563ec8f221be2230bfd88667e1d593439116195))
-
-# 0.4.1 (2025-11-04)
-
-### Features
-
-- semantic-releaseを設定 ([79d73e0](https://github.com/hkrhd/vscode-paste-as-webp/commit/79d73e0410319514e5252e52124d19209d56c382))
+* SSH・WSL環境でのクリップボード取得動作を改善
+* Linux環境でのクリップボード対応（xclip/wl-paste）
+* SSHリモート環境でのクリップボード処理とWindows検出ロジックを改善
 
 # Change Log
 
