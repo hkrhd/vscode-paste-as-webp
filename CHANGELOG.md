@@ -1,3 +1,10 @@
+## [0.5.6](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.5...v0.5.6) (2025-11-05)
+
+
+### Bug Fixes
+
+* Uri基盤パス処理へ移行，WSL/Remote環境対応強化 ([83d9465](https://github.com/hkrhd/vscode-paste-as-webp/commit/83d94652d9fa7555fee3899ee173d88e4c62eb2e))
+
 ## [0.5.5](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.4...v0.5.5) (2025-11-05)
 
 
