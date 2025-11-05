@@ -133,6 +133,13 @@ export class PasteCommand {
         const imageUri = vscode.Uri.file(imagePath);
         await this.deps.imageProcessor.saveImage(webpBuffer, imageUri);
 
+        // Obj: Verify file exists after save to detect save failures
+        try {
+            await vscode.workspace.fs.stat(imageUri);
+        } catch (error) {
+            throw new Error(this.messageProvider.t('pasteCommand.imageSaveError', imagePath));
+        }
+
         // マークダウンファイルからの相対パスを取得
         const relativePath = this.deps.fileUtils.getMarkdownRelativePath(
             editor.document.uri.fsPath,

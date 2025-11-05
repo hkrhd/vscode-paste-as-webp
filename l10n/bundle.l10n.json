@@ -6,6 +6,7 @@
   "pasteCommand.invalidImageDir": "Invalid image directory",
   "pasteCommand.textPasted": "Text has been pasted",
   "pasteCommand.imageSaved": "Image saved: {0}",
+  "pasteCommand.imageSaveError": "WebP image save failed. File does not exist: {0}",
   "config.imageDir.description": "Folder name for saving images. Relative path.",
   "config.quality.description": "Image quality (0-100). Higher values mean better quality but larger file size.",
   "config.namingConvention.description": "File naming pattern. Supports ${timestamp} and ${seq} placeholders.",

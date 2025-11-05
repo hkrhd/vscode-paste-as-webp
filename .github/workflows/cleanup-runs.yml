@@ -19,22 +19,90 @@ jobs:
         run: |
           REPO="${{ github.repository }}"
 
-          # すべてのワークフロー実行を取得（最新50件）
-          RUNS=$(gh run list --repo "$REPO" --limit 50 --json databaseId,createdAt,status)
+          echo "=== Cleanup: this workflow (keep 1 latest) ==="
+          SELF_RUNS=$(gh run list --repo "$REPO" --workflow cleanup-runs.yml --limit 50 --json databaseId)
+          SELF_TOTAL=$(echo "$SELF_RUNS" | jq 'length')
 
-          # JSONから ID を取得して、13番目以降を削除
-          TOTAL=$(echo "$RUNS" | jq 'length')
-
-          if [ "$TOTAL" -gt 12 ]; then
-            echo "Total runs: $TOTAL (keeping 12 latest)"
-
-            # 13番目以降のIDを抽出して削除
-            echo "$RUNS" | jq -r '.[12:] | .[].databaseId' | while read -r RUN_ID; do
-              echo "Deleting run $RUN_ID"
+          if [ "$SELF_TOTAL" -gt 1 ]; then
+            echo "Self runs: $SELF_TOTAL (keeping 1 latest)"
+            echo "$SELF_RUNS" | jq -r '.[1:] | .[].databaseId' | while read -r RUN_ID; do
+              echo "  Deleting self run $RUN_ID"
               gh run delete "$RUN_ID" --repo "$REPO" --confirm
             done
-
-            echo "Cleanup completed"
           else
-            echo "Current runs: $TOTAL (no cleanup needed)"
+            echo "Self runs: $SELF_TOTAL (no cleanup needed)"
           fi
+
+          echo ""
+          echo "=== Cleanup: other workflows (keep 12 latest each) ==="
+          # すべてのワークフローのリスト取得
+          WORKFLOWS=$(gh workflow list --repo "$REPO" --json path --jq '.[] | select(.path | contains("cleanup-runs.yml") | not) | .path')
+
+          while IFS= read -r WORKFLOW; do
+            if [ -z "$WORKFLOW" ]; then
+              continue
+            fi
+
+            OTHER_RUNS=$(gh run list --repo "$REPO" --workflow "$WORKFLOW" --limit 50 --json databaseId)
+            OTHER_TOTAL=$(echo "$OTHER_RUNS" | jq 'length')
+
+            if [ "$OTHER_TOTAL" -gt 12 ]; then
+              echo "Workflow: $WORKFLOW ($OTHER_TOTAL runs, keeping 12 latest)"
+              echo "$OTHER_RUNS" | jq -r '.[12:] | .[].databaseId' | while read -r RUN_ID; do
+                echo "  Deleting run $RUN_ID"
+                gh run delete "$RUN_ID" --repo "$REPO" --confirm
+              done
+            else
+              echo "Workflow: $WORKFLOW ($OTHER_TOTAL runs, no cleanup needed)"
+            fi
+          done <<< "$WORKFLOWS"
+
+          echo ""
+          echo "=== Cleanup: tags and releases (keep latest patch per minor version) ==="
+          # すべてのタグを取得（vX.Y.Z形式）
+          TAGS=$(gh api /repos/$REPO/git/refs/tags --jq '.[].ref | sub("refs/tags/"; "")')
+
+          # セマンティックバージョンのタグのみ抽出してソート
+          SEMVER_TAGS=$(echo "$TAGS" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V)
+
+          if [ -z "$SEMVER_TAGS" ]; then
+            echo "No semantic version tags found"
+          else
+            # マイナーバージョンごとにグループ化し、最新以外を削除対象リストに追加
+            declare -A MINOR_VERSIONS
+
+            while IFS= read -r TAG; do
+              # v1.2.3 から 1.2 を抽出
+              MINOR=$(echo "$TAG" | sed -E 's/^v([0-9]+\.[0-9]+)\.[0-9]+$/\1/')
+
+              # 最新のタグを保持（後から読むので上書きされる）
+              if [ -z "${MINOR_VERSIONS[$MINOR]}" ]; then
+                MINOR_VERSIONS[$MINOR]="$TAG"
+              else
+                # 既存のタグを削除対象に追加
+                OLD_TAG="${MINOR_VERSIONS[$MINOR]}"
+                echo "  Deleting tag: $OLD_TAG (superseded by $TAG in v$MINOR series)"
+
+                # リリースがあれば削除
+                RELEASE_ID=$(gh api /repos/$REPO/releases/tags/$OLD_TAG --jq '.id' 2>/dev/null || echo "")
+                if [ -n "$RELEASE_ID" ]; then
+                  echo "    Deleting release: $OLD_TAG (ID: $RELEASE_ID)"
+                  gh api --method DELETE /repos/$REPO/releases/$RELEASE_ID
+                fi
+
+                # タグを削除
+                gh api --method DELETE /repos/$REPO/git/refs/tags/$OLD_TAG
+
+                # 新しいタグを保持
+                MINOR_VERSIONS[$MINOR]="$TAG"
+              fi
+            done <<< "$SEMVER_TAGS"
+
+            echo "Keeping tags:"
+            for MINOR in "${!MINOR_VERSIONS[@]}"; do
+              echo "  v$MINOR series: ${MINOR_VERSIONS[$MINOR]}"
+            done
+          fi
+
+          echo ""
+          echo "Cleanup completed"
