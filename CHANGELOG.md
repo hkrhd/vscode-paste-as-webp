@@ -1,3 +1,10 @@
+## [0.5.1](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.0...v0.5.1) (2025-11-05)
+
+
+### Bug Fixes
+
+* ロギング機能の統一と VSCode FileSystem API への移行 ([fb31778](https://github.com/hkrhd/vscode-paste-as-webp/commit/fb31778091621804b0741116357b2bbc95edb95d))
+
 # [0.5.0](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.4.2...v0.5.0) (2025-11-05)
 
 
