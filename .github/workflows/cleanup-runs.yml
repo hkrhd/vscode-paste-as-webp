@@ -86,15 +86,9 @@ jobs:
                 OLD_TAG="${MINOR_VERSIONS[$MINOR]}"
                 echo "  Deleting tag: $OLD_TAG (superseded by $TAG in v$MINOR series)"
 
-                # リリースがあれば削除
-                RELEASE_ID=$(gh api /repos/$REPO/releases/tags/$OLD_TAG --jq '.id' 2>/dev/null || echo "")
-                if [ -n "$RELEASE_ID" ]; then
-                  echo "    Deleting release: $OLD_TAG (ID: $RELEASE_ID)"
-                  gh api --method DELETE /repos/$REPO/releases/$RELEASE_ID
-                fi
-
-                # タグを削除
-                gh api --method DELETE /repos/$REPO/git/refs/tags/$OLD_TAG
+                # リリースとタグを削除（--yes で確認スキップ）
+                echo "    Deleting release and tag: $OLD_TAG"
+                gh release delete "$OLD_TAG" --repo "$REPO" --yes --cleanup-tag 2>/dev/null || true
 
                 # 新しいタグを保持
                 MINOR_VERSIONS[$MINOR]="$TAG"
