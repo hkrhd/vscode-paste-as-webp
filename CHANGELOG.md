@@ -1,3 +1,10 @@
+## [0.5.5](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.4...v0.5.5) (2025-11-05)
+
+
+### Bug Fixes
+
+* クリーンアップワークフローのリリース削除エラーハンドリングを改善 ([b298e75](https://github.com/hkrhd/vscode-paste-as-webp/commit/b298e75dcccbfcb26e66e1ed4ef3b0e1b58f6510))
+
 ## [0.5.4](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.3...v0.5.4) (2025-11-05)
 
 
