@@ -2,7 +2,7 @@
 	"name": "vsc-webp-paster",
 	"displayName": "WebP Image Paster",
 	"description": "Paste images as WebP format in Markdown files. Supports both Windows and macOS.",
-	"version": "0.0.0",
+	"version": "0.4.2",
 	"license": "MIT",
 	"icon": "images/icon.png",
 	"engines": {
