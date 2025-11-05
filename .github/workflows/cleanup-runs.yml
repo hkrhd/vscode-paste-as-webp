@@ -27,7 +27,7 @@ jobs:
             echo "Self runs: $SELF_TOTAL (keeping 1 latest)"
             echo "$SELF_RUNS" | jq -r '.[1:] | .[].databaseId' | while read -r RUN_ID; do
               echo "  Deleting self run $RUN_ID"
-              gh run delete "$RUN_ID" --repo "$REPO" --confirm
+              gh run delete "$RUN_ID" --repo "$REPO"
             done
           else
             echo "Self runs: $SELF_TOTAL (no cleanup needed)"
@@ -50,7 +50,7 @@ jobs:
               echo "Workflow: $WORKFLOW ($OTHER_TOTAL runs, keeping 12 latest)"
               echo "$OTHER_RUNS" | jq -r '.[12:] | .[].databaseId' | while read -r RUN_ID; do
                 echo "  Deleting run $RUN_ID"
-                gh run delete "$RUN_ID" --repo "$REPO" --confirm
+                gh run delete "$RUN_ID" --repo "$REPO"
               done
             else
               echo "Workflow: $WORKFLOW ($OTHER_TOTAL runs, no cleanup needed)"

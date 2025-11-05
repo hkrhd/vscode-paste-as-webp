@@ -31,3 +31,9 @@ vsc-extension-quickstart.md
 .pre-commit-config.yaml
 .markdownlint.yaml
 .prettierrc
+.env
+.git.bak/**
+img/**
+prompts/**
+scratch/**
+.claude/**
