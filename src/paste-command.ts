@@ -4,16 +4,7 @@ import { ImageProcessor, ImageUtils } from "./image-processor";
 import { FileUtils, PathValidator } from "./file-utils";
 import { ConfigProvider, ConfigUtils } from "./config";
 import { logger } from "./logger";
-
-export interface MessageProvider {
-    t(key: string, ...args: any[]): string;
-}
-
-export class VSCodeMessageProvider implements MessageProvider {
-    t(key: string, ...args: any[]): string {
-        return vscode.l10n.t(key, ...args);
-    }
-}
+import { MessageProvider, VSCodeMessageProvider } from "./message-provider";
 
 export interface PasteCommandDependencies {
     clipboardProvider: ClipboardProvider;
@@ -91,7 +82,7 @@ export class PasteCommand {
         await editor.edit((editBuilder) => {
             editBuilder.insert(editor.selection.active, text);
         });
-        vscode.window.showInformationMessage(this.messageProvider.t('pasteCommand.textPasted'));
+        logger.debug('PasteCommand', 'Text pasted successfully');
     }
 
     private async pasteAsImage(
@@ -140,7 +131,7 @@ export class PasteCommand {
         // WebPに変換
         const webpBuffer = await this.deps.imageProcessor.convertToWebP(imageBuffer, config.quality);
 
-        // 画像を保存
+        // 画像を保存 (errors are already localized by ImageProcessor)
         await this.deps.imageProcessor.saveImage(webpBuffer, imageUri);
         logger.debug('PasteCommand', 'Image saved successfully');
 
@@ -170,6 +161,6 @@ export class PasteCommand {
             editBuilder.insert(editor.selection.active, imageMarkdown);
         });
 
-        vscode.window.showInformationMessage(this.messageProvider.t('pasteCommand.imageSaved', relativePath));
+        logger.debug('PasteCommand', 'Image saved and inserted:', relativePath);
     }
 }

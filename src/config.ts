@@ -14,13 +14,7 @@ export interface ConfigProvider {
 
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { MessageProvider } from './paste-command';
-
-export class VSCodeConfigMessageProvider implements MessageProvider {
-    t(key: string, ...args: any[]): string {
-        return vscode.l10n.t(key, ...args);
-    }
-}
+import { MessageProvider, VSCodeMessageProvider } from './message-provider';
 
 export class DefaultConfigProvider implements ConfigProvider {
     private vscodeConfig: any;
@@ -28,7 +22,7 @@ export class DefaultConfigProvider implements ConfigProvider {
 
     constructor(vscodeConfig: any, messageProvider?: MessageProvider) {
         this.vscodeConfig = vscodeConfig;
-        this.messageProvider = messageProvider || new VSCodeConfigMessageProvider();
+        this.messageProvider = messageProvider || new VSCodeMessageProvider();
     }
 
     getConfig(): ExtensionConfig {
