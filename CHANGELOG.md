@@ -1,3 +1,10 @@
+# [0.5.0](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.4.2...v0.5.0) (2025-11-05)
+
+
+### Features
+
+* insertPattern設定の例を改善し、useWorkspaceRoot設定を追加 ([31be4de](https://github.com/hkrhd/vscode-paste-as-webp/commit/31be4de811e365e9e47bd65ecae4f8499a67d4f6))
+
 # [UNRELEASED]
 
 ## Features
