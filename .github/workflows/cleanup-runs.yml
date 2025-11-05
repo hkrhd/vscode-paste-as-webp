@@ -1,0 +1,40 @@
+name: Cleanup Old Workflow Runs
+
+on:
+  schedule:
+    # 毎週日曜日 00:00 UTC に実行
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cleanup old workflow runs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          REPO="${{ github.repository }}"
+
+          # すべてのワークフロー実行を取得（最新50件）
+          RUNS=$(gh run list --repo "$REPO" --limit 50 --json databaseId,createdAt,status)
+
+          # JSONから ID を取得して、13番目以降を削除
+          TOTAL=$(echo "$RUNS" | jq 'length')
+
+          if [ "$TOTAL" -gt 12 ]; then
+            echo "Total runs: $TOTAL (keeping 12 latest)"
+
+            # 13番目以降のIDを抽出して削除
+            echo "$RUNS" | jq -r '.[12:] | .[].databaseId' | while read -r RUN_ID; do
+              echo "Deleting run $RUN_ID"
+              gh run delete "$RUN_ID" --repo "$REPO" --confirm
+            done
+
+            echo "Cleanup completed"
+          else
+            echo "Current runs: $TOTAL (no cleanup needed)"
+          fi
