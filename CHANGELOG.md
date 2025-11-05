@@ -1,3 +1,10 @@
+## [0.5.2](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.1...v0.5.2) (2025-11-05)
+
+
+### Bug Fixes
+
+* 画像保存失敗時にWebPエラーを通知 ([8f1f1c0](https://github.com/hkrhd/vscode-paste-as-webp/commit/8f1f1c0869af23f795714c9d30a3dc00acb18bef))
+
 ## [0.5.1](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.0...v0.5.1) (2025-11-05)
 
 
