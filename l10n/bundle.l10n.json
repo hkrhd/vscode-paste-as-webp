@@ -1,0 +1,10 @@
+{
+  "extension.noActiveEditor": "No active editor found.",
+  "extension.error": "An error occurred: {0}",
+  "pasteCommand.configError": "Configuration error: {0}",
+  "pasteCommand.noWorkspace": "No workspace is open. Please include the file in a workspace.",
+  "pasteCommand.invalidImagePath": "Invalid image path",
+  "pasteCommand.textPasted": "Text has been pasted",
+  "pasteCommand.imageSaved": "Image saved: {0}",
+  "config.imagePath.description": "Folder name for saving images. Relative path."
+}

@@ -1,0 +1,72 @@
+import * as vscode from "vscode";
+import { DefaultClipboardProvider } from "./clipboard";
+import { DefaultImageProcessor } from "./image-processor";
+import { DefaultFileUtils } from "./file-utils";
+import { DefaultConfigProvider } from "./config";
+import { PasteCommand, VSCodeMessageProvider } from "./paste-command";
+
+// ファクトリ関数をエクスポートして、テストでオーバーライドできるようにする
+export let createPasteCommand = (messageProvider: VSCodeMessageProvider) => {
+    const clipboardProvider = new DefaultClipboardProvider();
+    const imageProcessor = new DefaultImageProcessor();
+    const fileUtils = new DefaultFileUtils();
+    const vscodeConfig = vscode.workspace.getConfiguration("vsc-webp-paster");
+    const configProvider = new DefaultConfigProvider(vscodeConfig, messageProvider);
+
+    return new PasteCommand({
+        clipboardProvider,
+        imageProcessor,
+        fileUtils,
+        configProvider,
+        messageProvider
+    });
+};
+
+export function activate(context: vscode.ExtensionContext) {
+    console.log('Congratulations, your extension "vsc-webp-paster" is now active!');
+
+    // 依存関係を初期化
+    const clipboardProvider = new DefaultClipboardProvider();
+    const imageProcessor = new DefaultImageProcessor();
+    const fileUtils = new DefaultFileUtils();
+
+    const messageProvider = new VSCodeMessageProvider();
+
+    const disposable = vscode.commands.registerCommand(
+        "vsc-webp-paster.pasteAsWebpInMd",
+        async () => {
+            try {
+                const editor = vscode.window.activeTextEditor;
+                if (!editor) {
+                    vscode.window.showErrorMessage(messageProvider.t('extension.noActiveEditor'));
+                    return;
+                }
+
+                // 設定プロバイダーを初期化
+                const vscodeConfig = vscode.workspace.getConfiguration("vsc-webp-paster");
+                const configProvider = new DefaultConfigProvider(vscodeConfig, messageProvider);
+
+                // コマンドを実行
+                const command = new PasteCommand({
+                    clipboardProvider,
+                    imageProcessor,
+                    fileUtils,
+                    configProvider,
+                    messageProvider
+                });
+
+                await command.execute(editor);
+            } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                const fullError = error instanceof Error ? error.stack : String(error);
+                console.error("[Extension] Error occurred:", fullError);
+                vscode.window.showErrorMessage(messageProvider.t('extension.error', errorMessage));
+            }
+        }
+    );
+
+    context.subscriptions.push(disposable);
+}
+
+// This method is called when your extension is deactivated
+export function deactivate() {}

@@ -1,0 +1,56 @@
+# See https://pre-commit.com for more information
+repos:
+  # 一般的なファイルチェック
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        name: 行末の空白を削除
+      - id: end-of-file-fixer
+        name: ファイル末尾の改行を修正
+      - id: check-yaml
+        name: YAML構文チェック
+      - id: check-json
+        name: JSON構文チェック
+        exclude: '(\.vscode/.*\.json|tsconfig\.json)$'
+      - id: check-toml
+        name: TOML構文チェック
+      - id: check-case-conflict
+        name: ファイル名の大文字小文字競合チェック
+      - id: check-merge-conflict
+        name: マージコンフリクトマーカーチェック
+      - id: check-added-large-files
+        name: 大きなファイルの追加チェック
+        args: ['--maxkb=500']
+      - id: mixed-line-ending
+        name: 改行コードの統一
+        args: ['--fix=lf']
+
+  # TypeScript/JavaScript用ESLint
+  - repo: local
+    hooks:
+      - id: eslint
+        name: TypeScript/JavaScript ESLint
+        entry: npm run lint
+        language: system
+        files: \.(ts|js|mjs)$
+        pass_filenames: false
+
+  # TypeScript型チェック
+  - repo: local
+    hooks:
+      - id: typescript-check
+        name: TypeScript型チェック
+        entry: npm run check-types
+        language: system
+        files: \.ts$
+        pass_filenames: false
+
+  # package.jsonの形式チェック
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        name: Prettier フォーマッター
+        files: \.(json|md|yaml|yml)$
+        args: ['--write']

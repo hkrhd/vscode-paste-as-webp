@@ -1,0 +1,47 @@
+# 依存関係
+node_modules/
+yarn.lock
+pnpm-lock.yaml
+.md
+*.vsix
+
+# ビルド出力
+dist/
+out/
+build/
+
+# ログ
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 環境設定
+.env
+.env.local
+.env.*.local
+
+# エディタ
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+scratch.md
+/.vscode-test/
+
+# 開発用ディレクトリ
+.claude/
+prompts/
+CLAUDE.md
+.github/copilot-instructions.md
+FEATURES.md
+# Git backup
+.git.bak
