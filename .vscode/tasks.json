@@ -1,40 +1,40 @@
 {
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "type": "npm",
-      "script": "compile",
-      "problemMatcher": ["$tsc"],
-      "group": {
-        "kind": "build"
-      }
-    },
-    {
-      "label": "Release Test: Build & Install",
-      "type": "shell",
-      "command": "npm run package:vsix && code --install-extension \"$(ls -t build/*.vsix | head -1)\" --force",
-      "problemMatcher": [],
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      },
-      "group": {
-        "kind": "build"
-      }
-    },
-    {
-      "label": "Release: Create and Push Tag",
-      "type": "shell",
-      "command": "VERSION=$(node -p \"require('./package.json').version\") && git tag -a \"v$VERSION\" -m \"Release v$VERSION\" && git push origin main && git push origin \"v$VERSION\"",
-      "problemMatcher": [],
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared",
-        "focus": true
-      },
-      "group": {
-        "kind": "none"
-      }
-    }
-  ]
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "compile",
+			"problemMatcher": ["$tsc"],
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"label": "Build VSIX",
+			"type": "shell",
+			"command": "npm run package:vsix",
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"label": "Release: Create and Push Tag",
+			"type": "shell",
+			"command": "VERSION=$(node -p \"require('./package.json').version\") && git tag -a \"v$VERSION\" -m \"Release v$VERSION\" && git push origin main && git push origin \"v$VERSION\"",
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared",
+				"focus": true
+			},
+			"group": {
+				"kind": "none"
+			}
+		}
+	]
 }

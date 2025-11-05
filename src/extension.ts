@@ -26,6 +26,12 @@ export let createPasteCommand = (messageProvider: VSCodeMessageProvider) => {
 export function activate(context: vscode.ExtensionContext) {
     logger.debug('Extension', 'Extension "vsc-webp-paster" is now active!');
 
+    // Obj: Show output panel when debug mode is enabled
+    const config = vscode.workspace.getConfiguration('vsc-webp-paster');
+    if (config.get<boolean>('debugMode')) {
+        logger.show();
+    }
+
     // 依存関係を初期化
     const clipboardProvider = new DefaultClipboardProvider();
     const imageProcessor = new DefaultImageProcessor();
@@ -61,6 +67,7 @@ export function activate(context: vscode.ExtensionContext) {
                 const errorMessage = error instanceof Error ? error.message : String(error);
                 const fullError = error instanceof Error ? error.stack : String(error);
                 logger.error('Extension', "Error occurred:", fullError);
+                logger.show();
                 vscode.window.showErrorMessage(messageProvider.t('extension.error', errorMessage));
             }
         }

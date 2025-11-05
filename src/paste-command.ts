@@ -100,51 +100,65 @@ export class PasteCommand {
         config: any,
         workspaceFolder: vscode.WorkspaceFolder
     ): Promise<void> {
-        const mdFilePath = editor.document.uri.fsPath;
+        const mdFileUri = editor.document.uri;
 
-        // 画像フォルダのパスを取得
-        const targetDir = this.deps.fileUtils.generateImagePath(
-            workspaceFolder.uri.fsPath,
+        logger.debug('PasteCommand', 'mdFileUri.toString():', mdFileUri.toString());
+        logger.debug('PasteCommand', 'mdFileUri.fsPath:', mdFileUri.fsPath);
+        logger.debug('PasteCommand', 'workspaceFolder.uri.toString():', workspaceFolder.uri.toString());
+        logger.debug('PasteCommand', 'workspaceFolder.uri.fsPath:', workspaceFolder.uri.fsPath);
+        logger.debug('PasteCommand', 'config.useWorkspaceRoot:', config.useWorkspaceRoot);
+
+        // Obj: Generate unique filename first (without full path)
+        const targetDirUri = this.deps.fileUtils.generateImageUri(
+            workspaceFolder.uri,
             config.imageDir,
             "",
-            mdFilePath,
+            mdFileUri,
             config.useWorkspaceRoot
         );
+        logger.debug('PasteCommand', 'targetDirUri:', targetDirUri.toString());
 
-        // 重複を避けてファイル名を生成
+        // Obj: Convert Uri to fsPath for generateUniqueFileName
         const fileName = await ConfigUtils.generateUniqueFileName(
             config.namingConvention,
-            targetDir
+            targetDirUri.fsPath
         );
+        logger.debug('PasteCommand', 'fileName:', fileName);
 
-        // 画像を保存するパスを生成
-        const imagePath = this.deps.fileUtils.generateImagePath(
-            workspaceFolder.uri.fsPath,
+        // Obj: Use Uri-based path generation for cross-platform compatibility
+        const imageUri = this.deps.fileUtils.generateImageUri(
+            workspaceFolder.uri,
             config.imageDir,
             fileName,
-            mdFilePath,
+            mdFileUri,
             config.useWorkspaceRoot
         );
+        logger.debug('PasteCommand', 'imageUri.toString():', imageUri.toString());
+        logger.debug('PasteCommand', 'imageUri.fsPath:', imageUri.fsPath);
+        logger.debug('PasteCommand', 'imageUri.scheme:', imageUri.scheme);
 
         // WebPに変換
         const webpBuffer = await this.deps.imageProcessor.convertToWebP(imageBuffer, config.quality);
 
-        // 画像を保存 (Obj: Convert path to Uri for remote environment support)
-        const imageUri = vscode.Uri.file(imagePath);
+        // 画像を保存
         await this.deps.imageProcessor.saveImage(webpBuffer, imageUri);
+        logger.debug('PasteCommand', 'Image saved successfully');
 
         // Obj: Verify file exists after save to detect save failures
         try {
-            await vscode.workspace.fs.stat(imageUri);
+            const stat = await vscode.workspace.fs.stat(imageUri);
+            logger.debug('PasteCommand', 'File stat check passed, size:', stat.size);
         } catch (error) {
-            throw new Error(this.messageProvider.t('pasteCommand.imageSaveError', imagePath));
+            logger.error('PasteCommand', 'File stat check failed:', error);
+            throw new Error(this.messageProvider.t('pasteCommand.imageSaveError', imageUri.fsPath));
         }
 
-        // マークダウンファイルからの相対パスを取得
-        const relativePath = this.deps.fileUtils.getMarkdownRelativePath(
-            editor.document.uri.fsPath,
-            imagePath
+        // Obj: Use Uri-based relative path calculation
+        const relativePath = this.deps.fileUtils.getMarkdownRelativePathFromUri(
+            mdFileUri,
+            imageUri
         );
+        logger.debug('PasteCommand', 'relativePath:', relativePath);
 
         // 挿入パターンを展開
         const imageMarkdown = ConfigUtils.expandInsertPattern(
