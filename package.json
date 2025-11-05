@@ -42,10 +42,10 @@
 		"configuration": {
 			"title": "WebP Paster",
 			"properties": {
-				"vsc-webp-paster.imagePath": {
+				"vsc-webp-paster.imageDir": {
 					"type": "string",
 					"default": "img",
-					"description": "%config.imagePath.description%"
+					"description": "%config.imageDir.description%"
 				},
 				"vsc-webp-paster.quality": {
 					"type": "number",
@@ -63,6 +63,11 @@
 					"type": "string",
 					"default": "![${fileName}](${relativePath})",
 					"description": "%config.insertPattern.description%"
+				},
+				"vsc-webp-paster.useWorkspaceRoot": {
+					"type": "boolean",
+					"default": false,
+					"description": "%config.useWorkspaceRoot.description%"
 				}
 			}
 		},

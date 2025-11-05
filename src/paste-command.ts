@@ -46,8 +46,8 @@ export class PasteCommand {
         }
 
         // パスの検証
-        if (!PathValidator.isValidImagePath(config.imagePath)) {
-            throw new Error(this.messageProvider.t('pasteCommand.invalidImagePath'));
+        if (!PathValidator.isValidImagePath(config.imageDir)) {
+            throw new Error(this.messageProvider.t('pasteCommand.invalidImageDir'));
         }
 
         // クリップボードからデータを取得
@@ -99,11 +99,15 @@ export class PasteCommand {
         config: any,
         workspaceFolder: vscode.WorkspaceFolder
     ): Promise<void> {
+        const mdFilePath = editor.document.uri.fsPath;
+
         // 画像フォルダのパスを取得
         const targetDir = this.deps.fileUtils.generateImagePath(
             workspaceFolder.uri.fsPath,
-            config.imagePath,
-            ""
+            config.imageDir,
+            "",
+            mdFilePath,
+            config.useWorkspaceRoot
         );
 
         // 重複を避けてファイル名を生成
@@ -115,8 +119,10 @@ export class PasteCommand {
         // 画像を保存するパスを生成
         const imagePath = this.deps.fileUtils.generateImagePath(
             workspaceFolder.uri.fsPath,
-            config.imagePath,
-            fileName
+            config.imageDir,
+            fileName,
+            mdFilePath,
+            config.useWorkspaceRoot
         );
 
         // WebPに変換

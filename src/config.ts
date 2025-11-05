@@ -1,8 +1,9 @@
 export interface ExtensionConfig {
-    imagePath: string;
+    imageDir: string;
     quality: number;
     namingConvention: string;
     insertPattern: string;
+    useWorkspaceRoot: boolean;
 }
 
 export interface ConfigProvider {
@@ -32,19 +33,20 @@ export class DefaultConfigProvider implements ConfigProvider {
 
     getConfig(): ExtensionConfig {
         return {
-            imagePath: this.vscodeConfig.get("imagePath") || "img",
+            imageDir: this.vscodeConfig.get("imageDir") || "img",
             quality: this.vscodeConfig.get("quality") || 80,
             namingConvention: this.vscodeConfig.get("namingConvention") || "image-${timestamp}",
-            insertPattern: this.vscodeConfig.get("insertPattern") || "![${fileName}](${relativePath})"
+            insertPattern: this.vscodeConfig.get("insertPattern") || "![${fileName}](${relativePath})",
+            useWorkspaceRoot: this.vscodeConfig.get("useWorkspaceRoot") ?? false
         };
     }
 
     validateConfig(config: ExtensionConfig): string[] {
         const errors: string[] = [];
 
-        // imagePath validation
-        if (!config.imagePath || config.imagePath.trim() === "") {
-            errors.push(this.messageProvider.t('config.invalidImagePath'));
+        // imageDir validation
+        if (!config.imageDir || config.imageDir.trim() === "") {
+            errors.push(this.messageProvider.t('config.invalidImageDir'));
         }
 
         // quality validation
@@ -122,10 +124,11 @@ export class ConfigUtils {
 
     static getDefaultConfig(): ExtensionConfig {
         return {
-            imagePath: "img",
+            imageDir: "img",
             quality: 80,
             namingConvention: "image-${timestamp}",
-            insertPattern: "![${fileName}](${relativePath})"
+            insertPattern: "![${fileName}](${relativePath})",
+            useWorkspaceRoot: false
         };
     }
 }

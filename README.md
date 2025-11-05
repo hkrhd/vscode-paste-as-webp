@@ -33,9 +33,10 @@ See configuration descriptions for details
 
 ```json
 {
-  "vsc-webp-paster.imagePath": "img",
+  "vsc-webp-paster.imageDir": "img",
   "vsc-webp-paster.quality": 80,
-  "vsc-webp-paster.namingConvention": "image-${timestamp}"
+  "vsc-webp-paster.namingConvention": "image-${timestamp}",
+  "vsc-webp-paster.useWorkspaceRoot": false
 }
 ```
 

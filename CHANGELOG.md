@@ -1,3 +1,20 @@
+# [UNRELEASED]
+
+## Features
+
+* **config**: Add `useWorkspaceRoot` setting to control image save location base path
+  * `false` (default): Save images relative to Markdown file location
+  * `true`: Save images relative to workspace root (previous behavior)
+  * This change improves flexibility for different project structures
+
+## BREAKING CHANGES
+
+* **config**: Renamed configuration `imagePath` to `imageDir` for clarity
+  * Migration: Update your settings.json from `vsc-webp-paster.imagePath` to `vsc-webp-paster.imageDir`
+  * Old configuration will no longer work and must be updated manually
+* **behavior**: Default image save location changed from workspace root to Markdown file location
+  * To restore previous behavior, set `vsc-webp-paster.useWorkspaceRoot: true` in settings.json
+
 ## [0.4.2](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.4.1...v0.4.2) (2025-11-05)
 
 

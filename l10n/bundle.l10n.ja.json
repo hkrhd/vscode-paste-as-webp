@@ -3,11 +3,12 @@
   "extension.error": "エラーが発生しました: {0}",
   "pasteCommand.configError": "設定エラー: {0}",
   "pasteCommand.noWorkspace": "ワークスペースが開かれていません。ファイルをワークスペースに含めてください。",
-  "pasteCommand.invalidImagePath": "画像保存パスが無効です",
+  "pasteCommand.invalidImageDir": "画像保存ディレクトリが無効です",
   "pasteCommand.textPasted": "テキストをペーストしました",
   "pasteCommand.imageSaved": "画像を保存しました: {0}",
-  "config.imagePath.description": "画像を保存するためのフォルダ名．相対パス．",
-  "config.invalidImagePath": "画像保存パスが設定されていません",
+  "config.imageDir.description": "画像を保存するためのフォルダ名．相対パス．",
+  "config.invalidImageDir": "画像保存ディレクトリが設定されていません",
   "config.invalidQuality": "品質は0〜100の範囲で設定してください",
-  "config.invalidNamingConvention": "ファイル命名規則が設定されていません"
+  "config.invalidNamingConvention": "ファイル命名規則が設定されていません",
+  "config.invalidInsertPattern": "挿入パターンが設定されていません"
 }
