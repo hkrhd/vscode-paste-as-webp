@@ -1,3 +1,10 @@
+## [0.5.4](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.3...v0.5.4) (2025-11-05)
+
+
+### Bug Fixes
+
+* クリーンアップワークフローに必要な権限を追加 ([8dec06a](https://github.com/hkrhd/vscode-paste-as-webp/commit/8dec06a028ab809ec2c50769a2eb7242cae12c13))
+
 ## [0.5.3](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.2...v0.5.3) (2025-11-05)
 
 
