@@ -1,3 +1,10 @@
+## [0.5.3](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.2...v0.5.3) (2025-11-05)
+
+
+### Bug Fixes
+
+* vsceビルドエラーを修正 ([04fcfc0](https://github.com/hkrhd/vscode-paste-as-webp/commit/04fcfc0459635bf94e359f1c1d6d49f28b56e5f1))
+
 ## [0.5.2](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.1...v0.5.2) (2025-11-05)
 
 
