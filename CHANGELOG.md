@@ -1,3 +1,10 @@
+## [0.5.8](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.7...v0.5.8) (2025-11-07)
+
+
+### Bug Fixes
+
+* Restrict activation to .md files only to prevent activation in Jupyter notebooks ([086f6f9](https://github.com/hkrhd/vscode-paste-as-webp/commit/086f6f971c978fcc55f4f1a7ba5c77e23e5d1246))
+
 ## [0.5.7](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.6...v0.5.7) (2025-11-05)
 
 ### Bug Fixes
