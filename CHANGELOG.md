@@ -1,58 +1,50 @@
 ## [0.5.7](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.6...v0.5.7) (2025-11-05)
 
-
 ### Bug Fixes
 
-* MessageProvider共通化とエラー表示の多言語化対応 ([9533650](https://github.com/hkrhd/vscode-paste-as-webp/commit/9533650ff01103a123b88c11b2c0d18b196fd95a))
+- MessageProvider共通化とエラー表示の多言語化対応 ([9533650](https://github.com/hkrhd/vscode-paste-as-webp/commit/9533650ff01103a123b88c11b2c0d18b196fd95a))
 
 ## [0.5.6](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.5...v0.5.6) (2025-11-05)
 
-
 ### Bug Fixes
 
-* Uri基盤パス処理へ移行，WSL/Remote環境対応強化 ([83d9465](https://github.com/hkrhd/vscode-paste-as-webp/commit/83d94652d9fa7555fee3899ee173d88e4c62eb2e))
+- Uri基盤パス処理へ移行，WSL/Remote環境対応強化 ([83d9465](https://github.com/hkrhd/vscode-paste-as-webp/commit/83d94652d9fa7555fee3899ee173d88e4c62eb2e))
 
 ## [0.5.5](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.4...v0.5.5) (2025-11-05)
 
-
 ### Bug Fixes
 
-* クリーンアップワークフローのリリース削除エラーハンドリングを改善 ([b298e75](https://github.com/hkrhd/vscode-paste-as-webp/commit/b298e75dcccbfcb26e66e1ed4ef3b0e1b58f6510))
+- クリーンアップワークフローのリリース削除エラーハンドリングを改善 ([b298e75](https://github.com/hkrhd/vscode-paste-as-webp/commit/b298e75dcccbfcb26e66e1ed4ef3b0e1b58f6510))
 
 ## [0.5.4](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.3...v0.5.4) (2025-11-05)
 
-
 ### Bug Fixes
 
-* クリーンアップワークフローに必要な権限を追加 ([8dec06a](https://github.com/hkrhd/vscode-paste-as-webp/commit/8dec06a028ab809ec2c50769a2eb7242cae12c13))
+- クリーンアップワークフローに必要な権限を追加 ([8dec06a](https://github.com/hkrhd/vscode-paste-as-webp/commit/8dec06a028ab809ec2c50769a2eb7242cae12c13))
 
 ## [0.5.3](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.2...v0.5.3) (2025-11-05)
 
-
 ### Bug Fixes
 
-* vsceビルドエラーを修正 ([04fcfc0](https://github.com/hkrhd/vscode-paste-as-webp/commit/04fcfc0459635bf94e359f1c1d6d49f28b56e5f1))
+- vsceビルドエラーを修正 ([04fcfc0](https://github.com/hkrhd/vscode-paste-as-webp/commit/04fcfc0459635bf94e359f1c1d6d49f28b56e5f1))
 
 ## [0.5.2](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.1...v0.5.2) (2025-11-05)
 
-
 ### Bug Fixes
 
-* 画像保存失敗時にWebPエラーを通知 ([8f1f1c0](https://github.com/hkrhd/vscode-paste-as-webp/commit/8f1f1c0869af23f795714c9d30a3dc00acb18bef))
+- 画像保存失敗時にWebPエラーを通知 ([8f1f1c0](https://github.com/hkrhd/vscode-paste-as-webp/commit/8f1f1c0869af23f795714c9d30a3dc00acb18bef))
 
 ## [0.5.1](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.0...v0.5.1) (2025-11-05)
 
-
 ### Bug Fixes
 
-* ロギング機能の統一と VSCode FileSystem API への移行 ([fb31778](https://github.com/hkrhd/vscode-paste-as-webp/commit/fb31778091621804b0741116357b2bbc95edb95d))
+- ロギング機能の統一と VSCode FileSystem API への移行 ([fb31778](https://github.com/hkrhd/vscode-paste-as-webp/commit/fb31778091621804b0741116357b2bbc95edb95d))
 
 # [0.5.0](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.4.2...v0.5.0) (2025-11-05)
 
-
 ### Features
 
-* insertPattern設定の例を改善し、useWorkspaceRoot設定を追加 ([31be4de](https://github.com/hkrhd/vscode-paste-as-webp/commit/31be4de811e365e9e47bd65ecae4f8499a67d4f6))
+- insertPattern設定の例を改善し、useWorkspaceRoot設定を追加 ([31be4de](https://github.com/hkrhd/vscode-paste-as-webp/commit/31be4de811e365e9e47bd65ecae4f8499a67d4f6))
 
 # [UNRELEASED]
 
