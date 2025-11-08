@@ -4,13 +4,15 @@
 
 クリップボード画像をWebP形式に変換し, Markdownファイルに直接貼り付けるVSCode拡張機能です。
 
-![alt text](img/image.png)
+![image-20251109T003621.webp](img/image-20251109T003621.webp)
 
 ## 目的,機能
 
-- **ファイルサイズ削減** - WebPはPNG/JPEGより25-80%小さいファイル
-- **ワークフロー効率化** - クリップボードからMarkdownへ直接貼り付け
-- **クロスプラットフォーム** - Windows、macOS、Linuxや，リモート(WSL、ssh、devcontainer) で動作
+- **ファイルサイズ削減** - PNGより小さく．ロスレスも対応
+- **貼り付けパターンのカスタマイズ** - htmlタグを使った50%縮小貼り付けなど
+- **画像名に日時を入れてユニークに**
+- **ワークスペースルートを基準にした画像保存**
+- **クロスプラットフォーム動作** - Windows、macOS、Linux，リモート(WSL、ssh、devcontainer) 
 
 ## インストール
 
@@ -36,6 +38,7 @@
   "vsc-webp-paster.imageDir": "img",
   "vsc-webp-paster.quality": 80,
   "vsc-webp-paster.namingConvention": "image-${timestamp}",
+  "vsc-webp-paster.insertPattern": "![${fileName}](${relativePath})",
   "vsc-webp-paster.useWorkspaceRoot": false
 }
 ```
@@ -53,4 +56,4 @@
 
 ## 📝 ライセンス
 
-MIT License - [LICENSE.md](LICENSE.md)ファイルを参照
+MIT License

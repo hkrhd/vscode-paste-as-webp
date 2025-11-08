@@ -46,3 +46,6 @@ FEATURES.md
 # Git backup
 .git.bak
 scratch
+
+test_doc
+.README.md

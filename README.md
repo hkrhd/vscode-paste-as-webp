@@ -1,15 +1,20 @@
 # WebP Image Paster
 
-[日本語版README](README_JA.md)
+[日本語README](README_JA.md)
+
+> **Found a bug?** Please let me know by [issue](https://github.com/hkrhd/vscode-paste-as-webp/issues) I'll fix it ASAP!
+> なる早で修正します！
 
 VSCode extension that converts clipboard images to WebP format and pastes them directly into Markdown files.
 
-![alt text](img/image.png)
+![image-20251109T003621.webp](img/image-20251109T003621.webp)
 
 ## Purpose and Features
 
-- **Reduce file sizes** - WebP provides 25-80% smaller files than PNG/JPEG
-- **Streamline workflow** - Direct paste from clipboard to Markdown
+- **Reduce file sizes** - Smaller than PNG. Lossless compression supported
+- **Customize paste patterns** - HTML tag insertion for 50% scaled images, etc.
+- **Unique image names with timestamps**
+- **Save images relative to workspace root**
 - **Cross-platform** - Works on Windows, macOS, Linux, and remote environments (WSL, SSH, devcontainer)
 
 ## Installation
@@ -36,6 +41,7 @@ See configuration descriptions for details
   "vsc-webp-paster.imageDir": "img",
   "vsc-webp-paster.quality": 80,
   "vsc-webp-paster.namingConvention": "image-${timestamp}",
+  "vsc-webp-paster.insertPattern": "![${fileName}](${relativePath})",
   "vsc-webp-paster.useWorkspaceRoot": false
 }
 ```
@@ -53,4 +59,4 @@ See configuration descriptions for details
 
 ## 📝 License
 
-MIT License - see [LICENSE.md](LICENSE.md) file
+MIT License

@@ -11,7 +11,7 @@
   "pasteCommand.imageWriteError": "画像ファイルの書き込みに失敗しました: {0}",
   "pasteCommand.imageConvertError": "WebP形式への変換に失敗しました: {0}",
   "config.imageDir.description": "画像を保存するためのフォルダ名．相対パス．",
-  "config.quality.description": "画像品質 (0-100)．値が大きいほど高品質だがファイルサイズも大きくなる．",
+  "config.quality.description": "画像品質 (0-100)．値が大きいほど高品質だがファイルサイズも大きくなる．100でロスレス．",
   "config.namingConvention.description": "ファイル命名パターン．${timestamp}と${seq}のプレースホルダーが使用可能．",
   "config.insertPattern.description": "Markdown挿入パターン．${fileName}, ${fileNameWithoutExt}, ${relativePath}のプレースホルダーが使用可能．",
   "config.useWorkspaceRoot.description": "現在のファイルのディレクトリではなく、ワークスペースルートを基準パスとして使用する．",

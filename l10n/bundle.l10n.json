@@ -11,7 +11,7 @@
   "pasteCommand.imageWriteError": "Failed to write image file: {0}",
   "pasteCommand.imageConvertError": "Failed to convert image to WebP: {0}",
   "config.imageDir.description": "Folder name for saving images. Relative path.",
-  "config.quality.description": "Image quality (0-100). Higher values mean better quality but larger file size.",
+  "config.quality.description": "Image quality (0-100). Higher values mean better quality but larger file size. 100 = lossless.",
   "config.namingConvention.description": "File naming pattern. Supports ${timestamp} and ${seq} placeholders.",
   "config.insertPattern.description": "Markdown insert pattern. Supports ${fileName}, ${fileNameWithoutExt}, ${relativePath} placeholders.",
   "config.useWorkspaceRoot.description": "Use workspace root as base path instead of current file's directory.",

@@ -2,7 +2,7 @@
   "config.imageDir.description": "Folder name for saving images. Relative path.",
   "config.quality.description": "WebP compression quality (0-100, default: 80)",
   "config.namingConvention.description": "Image file naming pattern.\n\nAvailable placeholders:\n- ${timestamp} (yyyymmddThhmmss format, e.g., 20250104T123456)\n- ${seq} (auto-increment number starting from 1, e.g., 1, 2, 3)\n\nExamples:\n- image-${timestamp}\n- image-${seq}\n\nNote: If file already exists, -1, -2, ... will be appended automatically.",
-  "config.insertPattern.description": "Pattern for inserting images into Markdown.\n\nAvailable placeholders:\n- ${fileName} (with extension)\n- ${fileNameWithoutExt} (without extension)\n- ${relativePath}\n\nExamples:\n- Markdown: ![${fileName}](${relativePath})\n- with 50% width: <img src=\"${relativePath}\" alt=\"${fileNameWithoutExt}\" width=\"50%\">",
+  "config.insertPattern.description": "Pattern for inserting images into Markdown.\n\nAvailable placeholders:\n- ${fileName}\n- ${fileNameWithoutExt}\n- ${relativePath}\n\nExamples:\n- Markdown: ![${fileName}](${relativePath})\n- with 50% width: <img src=\"${relativePath}\" alt=\"${fileNameWithoutExt}\" width=\"50%\">",
   "config.useWorkspaceRoot.description": "When false (default), images are saved relative to the Markdown file location. When true, images are saved relative to the workspace root.",
   "config.debugMode.description": "Enable debug logging to console (default: false)."
 }
