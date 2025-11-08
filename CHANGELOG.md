@@ -1,3 +1,10 @@
+## [0.5.9](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.8...v0.5.9) (2025-11-08)
+
+
+### Bug Fixes
+
+* keybindings when条件の引用符追加 ([59f2d0e](https://github.com/hkrhd/vscode-paste-as-webp/commit/59f2d0e17e7830877eba65d8760160caa4fcc54d))
+
 ## [0.5.8](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.7...v0.5.8) (2025-11-07)
 
 ### Bug Fixes
