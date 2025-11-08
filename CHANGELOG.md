@@ -1,3 +1,10 @@
+## [0.5.10](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.9...v0.5.10) (2025-11-08)
+
+
+### Bug Fixes
+
+* notebookEditorFocusedでJupyter notebook除外 ([3f481d6](https://github.com/hkrhd/vscode-paste-as-webp/commit/3f481d6a15eee593ba13db5c22bd6d4ed14d6d59))
+
 ## [0.5.9](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.8...v0.5.9) (2025-11-08)
 
 
