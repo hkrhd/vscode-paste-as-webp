@@ -1,3 +1,10 @@
+## [0.5.11](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.10...v0.5.11) (2025-11-08)
+
+
+### Bug Fixes
+
+* update documentation and replace demo image with WebP format ([430774d](https://github.com/hkrhd/vscode-paste-as-webp/commit/430774de94f02ecb9236f4d1aa5d3e2acc7567d1))
+
 ## [0.5.10](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.9...v0.5.10) (2025-11-08)
 
 
