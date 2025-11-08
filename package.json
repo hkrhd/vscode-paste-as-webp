@@ -35,7 +35,7 @@
         "command": "vsc-webp-paster.pasteAsWebpInMd",
         "key": "ctrl+v",
         "mac": "cmd+v",
-        "when": "editorTextFocus && editorLangId == 'markdown' && resourceExtname == .md"
+        "when": "editorTextFocus && editorLangId == 'markdown' && resourceExtname == '.md'"
       }
     ],
     "configuration": {
