@@ -46,7 +46,12 @@ jobs:
               continue
             fi
 
-            OTHER_RUNS=$(gh run list --repo "$REPO" --workflow "$WORKFLOW" --limit 50 --json databaseId)
+            # Obj: Skip dynamic workflows (e.g., pages-build-deployment)
+            if ! OTHER_RUNS=$(gh run list --repo "$REPO" --workflow "$WORKFLOW" --limit 50 --json databaseId 2>&1); then
+              echo "Workflow: $WORKFLOW (skipped - dynamic or inaccessible)"
+              continue
+            fi
+
             OTHER_TOTAL=$(echo "$OTHER_RUNS" | jq 'length')
 
             if [ "$OTHER_TOTAL" -gt 12 ]; then
