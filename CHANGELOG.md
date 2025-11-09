@@ -1,3 +1,10 @@
+## [0.5.12](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.11...v0.5.12) (2025-11-09)
+
+
+### Bug Fixes
+
+* handle dynamic workflows in cleanup-runs workflow ([26da9c7](https://github.com/hkrhd/vscode-paste-as-webp/commit/26da9c7e22ccb2b7088c56d6740212a1dc0cba18))
+
 ## [0.5.11](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.10...v0.5.11) (2025-11-08)
 
 
