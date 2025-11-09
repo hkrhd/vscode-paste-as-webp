@@ -1,3 +1,10 @@
+## [0.5.13](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.12...v0.5.13) (2025-11-09)
+
+
+### Bug Fixes
+
+* change extension category from Formatters to Other ([4c84622](https://github.com/hkrhd/vscode-paste-as-webp/commit/4c84622d13f2ffdd5f8d07f061dd182f1d3195da))
+
 ## [0.5.12](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.11...v0.5.12) (2025-11-09)
 
 
