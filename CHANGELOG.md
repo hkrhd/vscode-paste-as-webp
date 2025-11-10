@@ -1,3 +1,10 @@
+## [0.5.14](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.13...v0.5.14) (2025-11-10)
+
+
+### Bug Fixes
+
+* support non-workspace mode and improve error UX ([571adc7](https://github.com/hkrhd/vscode-paste-as-webp/commit/571adc79e1adbd70e2a7f18f18b1e3dfaf0250ec))
+
 ## [0.5.13](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.12...v0.5.13) (2025-11-09)
 
 
