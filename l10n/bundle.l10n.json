@@ -1,8 +1,10 @@
 {
   "extension.noActiveEditor": "No active editor found.",
   "extension.error": "An error occurred: {0}",
+  "extension.showDetails": "Show Details",
   "pasteCommand.configError": "Configuration error: {0}",
   "pasteCommand.noWorkspace": "No workspace is open. Please include the file in a workspace.",
+  "pasteCommand.noWorkspaceWithUseRoot": "No workspace is open. Please open a workspace folder or disable 'Use Workspace Root' setting.",
   "pasteCommand.invalidImageDir": "Invalid image directory",
   "pasteCommand.textPasted": "Text has been pasted",
   "pasteCommand.imageSaved": "Image saved: {0}",

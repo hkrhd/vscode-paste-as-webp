@@ -75,7 +75,16 @@ export function activate(context: vscode.ExtensionContext) {
                     logger.show();
                 }
 
-                vscode.window.showErrorMessage(messageProvider.t('extension.error', errorMessage));
+                // Obj: Show error message with "Show Details" button
+                const showDetailsButton = messageProvider.t('extension.showDetails');
+                vscode.window.showErrorMessage(
+                    messageProvider.t('extension.error', errorMessage),
+                    showDetailsButton
+                ).then(selection => {
+                    if (selection === showDetailsButton) {
+                        logger.show();
+                    }
+                });
             }
         }
     );

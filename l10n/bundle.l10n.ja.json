@@ -1,8 +1,10 @@
 {
   "extension.noActiveEditor": "アクティブなエディタがありません。",
   "extension.error": "エラーが発生しました: {0}",
+  "extension.showDetails": "詳細を表示",
   "pasteCommand.configError": "設定エラー: {0}",
   "pasteCommand.noWorkspace": "ワークスペースが開かれていません。ファイルをワークスペースに含めてください。",
+  "pasteCommand.noWorkspaceWithUseRoot": "ワークスペースが開かれていません。ワークスペースフォルダを開くか、'Use Workspace Root' 設定を無効にしてください。",
   "pasteCommand.invalidImageDir": "画像保存ディレクトリが無効です",
   "pasteCommand.textPasted": "テキストをペーストしました",
   "pasteCommand.imageSaved": "画像を保存しました: {0}",

@@ -33,8 +33,8 @@ export class PasteCommand {
 
         // ワークスペースの確認
         const workspaceFolder = vscode.workspace.getWorkspaceFolder(editor.document.uri);
-        if (!workspaceFolder) {
-            throw new Error(this.messageProvider.t('pasteCommand.noWorkspace'));
+        if (!workspaceFolder && config.useWorkspaceRoot) {
+            throw new Error(this.messageProvider.t('pasteCommand.noWorkspaceWithUseRoot'));
         }
 
         // パスの検証
@@ -75,7 +75,7 @@ export class PasteCommand {
         logger.debug('PasteCommand', 'Processing as image, buffer size:', imageBuffer.length);
 
         // 画像として処理
-        await this.pasteAsImage(editor, imageBuffer, config, workspaceFolder);
+        await this.pasteAsImage(editor, imageBuffer, config, workspaceFolder || undefined);
     }
 
     private async pasteAsText(editor: vscode.TextEditor, text: string): Promise<void> {
@@ -89,19 +89,23 @@ export class PasteCommand {
         editor: vscode.TextEditor,
         imageBuffer: Buffer,
         config: any,
-        workspaceFolder: vscode.WorkspaceFolder
+        workspaceFolder?: vscode.WorkspaceFolder
     ): Promise<void> {
         const mdFileUri = editor.document.uri;
+        // Obj: useWorkspaceRoot=false ignores workspace; always use file's directory
+        const baseUri = config.useWorkspaceRoot && workspaceFolder
+            ? workspaceFolder.uri
+            : vscode.Uri.joinPath(mdFileUri, '..');
 
         logger.debug('PasteCommand', 'mdFileUri.toString():', mdFileUri.toString());
         logger.debug('PasteCommand', 'mdFileUri.fsPath:', mdFileUri.fsPath);
-        logger.debug('PasteCommand', 'workspaceFolder.uri.toString():', workspaceFolder.uri.toString());
-        logger.debug('PasteCommand', 'workspaceFolder.uri.fsPath:', workspaceFolder.uri.fsPath);
+        logger.debug('PasteCommand', 'baseUri.toString():', baseUri.toString());
+        logger.debug('PasteCommand', 'baseUri.fsPath:', baseUri.fsPath);
         logger.debug('PasteCommand', 'config.useWorkspaceRoot:', config.useWorkspaceRoot);
 
         // Obj: Generate unique filename first (without full path)
         const targetDirUri = this.deps.fileUtils.generateImageUri(
-            workspaceFolder.uri,
+            baseUri,
             config.imageDir,
             "",
             mdFileUri,
@@ -118,7 +122,7 @@ export class PasteCommand {
 
         // Obj: Use Uri-based path generation for cross-platform compatibility
         const imageUri = this.deps.fileUtils.generateImageUri(
-            workspaceFolder.uri,
+            baseUri,
             config.imageDir,
             fileName,
             mdFileUri,
