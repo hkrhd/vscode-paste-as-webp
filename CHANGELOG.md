@@ -1,3 +1,10 @@
+# [0.6.0](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.14...v0.6.0) (2025-12-21)
+
+
+### Features
+
+* add progress notification for slow image pasting ([2204e75](https://github.com/hkrhd/vscode-paste-as-webp/commit/2204e7562352839c57ab16c883b99e488e2c263e))
+
 ## [0.5.14](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.13...v0.5.14) (2025-11-10)
 
 
