@@ -39,7 +39,8 @@
   "vsc-webp-paster.quality": 80,
   "vsc-webp-paster.namingConvention": "image-${timestamp}",
   "vsc-webp-paster.insertPattern": "![${fileName}](${relativePath})",
-  "vsc-webp-paster.useWorkspaceRoot": false
+  "vsc-webp-paster.useWorkspaceRoot": false,
+  "vsc-webp-paster.progressDelay": 0.3
 }
 ```
 

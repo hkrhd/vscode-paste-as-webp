@@ -5,6 +5,7 @@ export interface ExtensionConfig {
     insertPattern: string;
     useWorkspaceRoot: boolean;
     debugMode: boolean;
+    progressDelay: number;
 }
 
 export interface ConfigProvider {
@@ -32,7 +33,8 @@ export class DefaultConfigProvider implements ConfigProvider {
             namingConvention: this.vscodeConfig.get("namingConvention") || "image-${timestamp}",
             insertPattern: this.vscodeConfig.get("insertPattern") || "![${fileName}](${relativePath})",
             useWorkspaceRoot: this.vscodeConfig.get("useWorkspaceRoot") ?? false,
-            debugMode: this.vscodeConfig.get("debugMode") ?? false
+            debugMode: this.vscodeConfig.get("debugMode") ?? false,
+            progressDelay: this.vscodeConfig.get("progressDelay") ?? 0.3
         };
     }
 
@@ -128,7 +130,8 @@ export class ConfigUtils {
             namingConvention: "image-${timestamp}",
             insertPattern: "![${fileName}](${relativePath})",
             useWorkspaceRoot: false,
-            debugMode: false
+            debugMode: false,
+            progressDelay: 0.3
         };
     }
 }

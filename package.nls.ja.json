@@ -4,5 +4,6 @@
   "config.namingConvention.description": "画像ファイル命名パターン．\n\n使用可能なプレースホルダー:\n- ${timestamp}（yyyymmddThhmmss形式、例: 20250104T123456）\n- ${seq}（1から始まる自動連番、例: 1, 2, 3）\n\n例:\n- image-${timestamp}\n- image-${seq}\n\n注: ファイルが既に存在する場合、自動的に -1, -2, ... が付与されます．",
   "config.insertPattern.description": "画像をMarkdownに挿入するパターン．\n\n使用可能なプレースホルダー:\n- ${fileName}\n- ${fileNameWithoutExt}\n- ${relativePath}\n\n例:\n- Markdown形式: ![${fileName}](${relativePath})\n- 幅50%指定: <img src=\"${relativePath}\" alt=\"${fileNameWithoutExt}\" width=\"50%\">",
   "config.useWorkspaceRoot.description": "falseの場合（デフォルト）、Markdownファイルの場所を基準として画像を保存します．trueの場合、ワークスペースルートを基準として画像を保存します．",
-  "config.debugMode.description": "コンソールへのデバッグログを有効化（デフォルト: false）．"
+  "config.debugMode.description": "コンソールへのデバッグログを有効化（デフォルト: false）．",
+  "config.progressDelay.description": "処理中通知を表示するまでの遅延時間（秒） (デフォルト: 0.3)．"
 }

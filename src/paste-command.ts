@@ -58,11 +58,51 @@ export class PasteCommand {
             }
         }
 
+        // 進行状況の遅延表示用関数
+        const runWithProgress = async (task: () => Promise<void>) => {
+            let isDone = false;
+            const progressPromise = (async () => {
+                await new Promise(resolve => setTimeout(resolve, config.progressDelay * 1000));
+                if (!isDone) {
+                    return vscode.window.withProgress(
+                        {
+                            location: vscode.ProgressLocation.Notification,
+                            title: this.messageProvider.t("pasteCommand.processing"),
+                            cancellable: false,
+                        },
+                        async () => {
+                            // タスクが終わるまで待機
+                            while (!isDone) {
+                                await new Promise(resolve => setTimeout(resolve, 50));
+                            }
+                        }
+                    );
+                }
+            })();
+
+            try {
+                await task();
+            } finally {
+                isDone = true;
+            }
+            await progressPromise;
+        };
+
         // プラットフォーム固有のクリップボード処理
         if (!imageBuffer && textData.length === 0) {
             logger.debug('PasteCommand', 'Attempting platform-specific clipboard access');
-            imageBuffer = await this.deps.clipboardProvider.getImageBuffer();
-            logger.debug('PasteCommand', 'Platform clipboard result:', imageBuffer ? `buffer size: ${imageBuffer.length}` : 'null');
+            // Obj: show progress for slow clipboard access on remote/WSL
+            await runWithProgress(async () => {
+                imageBuffer = await this.deps.clipboardProvider.getImageBuffer();
+                logger.debug('PasteCommand', 'Platform clipboard result:', imageBuffer ? `buffer size: ${imageBuffer.length}` : 'null');
+
+                if (imageBuffer) {
+                    await this.pasteAsImage(editor, imageBuffer, config, workspaceFolder || undefined);
+                } else {
+                    await this.pasteAsText(editor, textData);
+                }
+            });
+            return;
         }
 
         // 画像データがない場合はテキストとして処理
@@ -74,8 +114,10 @@ export class PasteCommand {
 
         logger.debug('PasteCommand', 'Processing as image, buffer size:', imageBuffer.length);
 
-        // 画像として処理
-        await this.pasteAsImage(editor, imageBuffer, config, workspaceFolder || undefined);
+        // 画像として処理 (Base64経由などの場合)
+        await runWithProgress(async () => {
+            await this.pasteAsImage(editor, imageBuffer!, config, workspaceFolder || undefined);
+        });
     }
 
     private async pasteAsText(editor: vscode.TextEditor, text: string): Promise<void> {
