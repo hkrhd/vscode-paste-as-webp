@@ -4,7 +4,7 @@ yarn.lock
 pnpm-lock.yaml
 .md
 *.vsix
-
+AGENTS.md
 # ビルド出力
 dist/
 out/
