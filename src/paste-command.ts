@@ -2,9 +2,10 @@ import * as vscode from "vscode";
 import { ClipboardProvider } from "./clipboard";
 import { ImageProcessor, ImageUtils } from "./image-processor";
 import { FileUtils, PathValidator } from "./file-utils";
-import { ConfigProvider, ConfigUtils } from "./config";
+import { ConfigProvider, ConfigUtils, ExtensionConfig } from "./config";
 import { logger } from "./logger";
 import { MessageProvider, VSCodeMessageProvider } from "./message-provider";
+import { UrlUtils } from "./url-utils";
 
 export interface PasteCommandDependencies {
     clipboardProvider: ClipboardProvider;
@@ -99,7 +100,7 @@ export class PasteCommand {
                 if (imageBuffer) {
                     await this.pasteAsImage(editor, imageBuffer, config, workspaceFolder || undefined);
                 } else {
-                    await this.pasteAsText(editor, textData);
+                    await this.pasteAsText(editor, textData, config);
                 }
             });
             return;
@@ -108,7 +109,7 @@ export class PasteCommand {
         // 画像データがない場合はテキストとして処理
         if (!imageBuffer) {
             logger.debug('PasteCommand', 'No image data, pasting as text');
-            await this.pasteAsText(editor, textData);
+            await this.pasteAsText(editor, textData, config);
             return;
         }
 
@@ -120,7 +121,36 @@ export class PasteCommand {
         });
     }
 
-    private async pasteAsText(editor: vscode.TextEditor, text: string): Promise<void> {
+    private async pasteAsText(editor: vscode.TextEditor, text: string, config: ExtensionConfig): Promise<void> {
+        // Obj: Check if URL conversion is enabled and text is a valid URL
+        if (config.convertUrlToLink && UrlUtils.isValidUrl(text)) {
+            logger.debug('PasteCommand', 'URL detected, fetching title...');
+
+            let title: string | null = null;
+            await vscode.window.withProgress(
+                {
+                    location: vscode.ProgressLocation.Notification,
+                    title: this.messageProvider.t("pasteCommand.fetchingTitle"),
+                    cancellable: false,
+                },
+                async () => {
+                    title = await UrlUtils.fetchPageTitle(text, config.urlFetchTimeout);
+                }
+            );
+
+            if (title) {
+                logger.debug('PasteCommand', 'Title fetched:', title);
+                const markdownLink = `[${title}](${text})`;
+                await this.insertText(editor, markdownLink);
+                return;
+            }
+            logger.debug('PasteCommand', 'Failed to fetch title');
+        }
+
+        await this.insertText(editor, text);
+    }
+
+    private async insertText(editor: vscode.TextEditor, text: string): Promise<void> {
         await editor.edit((editBuilder) => {
             editBuilder.insert(editor.selection.active, text);
         });

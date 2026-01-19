@@ -6,6 +6,8 @@ export interface ExtensionConfig {
     useWorkspaceRoot: boolean;
     debugMode: boolean;
     progressDelay: number;
+    convertUrlToLink: boolean;
+    urlFetchTimeout: number;
 }
 
 export interface ConfigProvider {
@@ -34,7 +36,9 @@ export class DefaultConfigProvider implements ConfigProvider {
             insertPattern: this.vscodeConfig.get("insertPattern") || "![${fileName}](${relativePath})",
             useWorkspaceRoot: this.vscodeConfig.get("useWorkspaceRoot") ?? false,
             debugMode: this.vscodeConfig.get("debugMode") ?? false,
-            progressDelay: this.vscodeConfig.get("progressDelay") ?? 0.3
+            progressDelay: this.vscodeConfig.get("progressDelay") ?? 0.3,
+            convertUrlToLink: this.vscodeConfig.get("convertUrlToLink") ?? false,
+            urlFetchTimeout: this.vscodeConfig.get("urlFetchTimeout") ?? 300
         };
     }
 
@@ -131,7 +135,9 @@ export class ConfigUtils {
             insertPattern: "![${fileName}](${relativePath})",
             useWorkspaceRoot: false,
             debugMode: false,
-            progressDelay: 0.3
+            progressDelay: 0.3,
+            convertUrlToLink: false,
+            urlFetchTimeout: 300
         };
     }
 }

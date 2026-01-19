@@ -5,5 +5,7 @@
   "config.insertPattern.description": "Pattern for inserting images into Markdown.\n\nAvailable placeholders:\n- ${fileName}\n- ${fileNameWithoutExt}\n- ${relativePath}\n\nExamples:\n- Markdown: ![${fileName}](${relativePath})\n- with 50% width: <img src=\"${relativePath}\" alt=\"${fileNameWithoutExt}\" width=\"50%\">",
   "config.useWorkspaceRoot.description": "When false (default), images are saved relative to the Markdown file location. When true, images are saved relative to the workspace root.",
   "config.debugMode.description": "Enable debug logging to console (default: false).",
-  "config.progressDelay.description": "Delay in seconds before showing the progress notification (default: 0.3)."
+  "config.progressDelay.description": "Delay in seconds before showing the progress notification (default: 0.3).",
+  "config.convertUrlToLink.description": "Automatically convert pasted URLs to Markdown links with page titles (default: false).",
+  "config.urlFetchTimeout.description": "Timeout in milliseconds for fetching page titles (default: 300)."
 }

@@ -77,6 +77,16 @@
           "type": "number",
           "default": 0.3,
           "description": "%config.progressDelay.description%"
+        },
+        "vsc-webp-paster.convertUrlToLink": {
+          "type": "boolean",
+          "default": false,
+          "description": "%config.convertUrlToLink.description%"
+        },
+        "vsc-webp-paster.urlFetchTimeout": {
+          "type": "number",
+          "default": 300,
+          "description": "%config.urlFetchTimeout.description%"
         }
       }
     },
