@@ -120,7 +120,7 @@
     "esbuild": "^0.27.2",
     "eslint": "^9.39.2",
     "npm-run-all": "^4.1.5",
-    "typescript": "^5.6.3"
+    "typescript": "^5.9.3"
   },
   "dependencies": {
     "@napi-rs/clipboard": "^1.1.3",
