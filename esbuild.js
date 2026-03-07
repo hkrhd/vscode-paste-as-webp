@@ -35,7 +35,7 @@ async function main() {
         sourcesContent: false,
         platform: "node",
         outfile: "dist/extension.js",
-        external: ["vscode", "sharp", "@napi-rs/clipboard"],
+        external: ["vscode", "sharp"],
         target: "node16",
         logLevel: "silent",
         plugins: [
@@ -50,11 +50,6 @@ async function main() {
 
                     // Mark native dependencies as external
                     build.onResolve({ filter: /^sharp$/ }, (args) => ({
-                        path: args.path,
-                        external: true,
-                    }));
-
-                    build.onResolve({ filter: /^@napi-rs\/clipboard$/ }, (args) => ({
                         path: args.path,
                         external: true,
                     }));

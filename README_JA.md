@@ -54,6 +54,7 @@
 - **Windows**: PowerShell (.NET System.Windows.Forms.Clipboard)
 - **macOS**: AppleScript (osascript)
 - **Linux**: xclip (X11) または wl-paste (Wayland) - インストール必要
+- **WSL / SSH**: 可能なら Windows 側 PowerShell を優先し, それ以外はクライアント側 OS の方式を使う
 
 ## 開発
 
@@ -62,12 +63,14 @@ npm ci
 npm run compile
 npm test
 npm run test:e2e:code
+npm run test:perf:e2e
 npm run package:vsix
 ```
 
 ローカルテスト:
 - `npm test`: CI と同じ Extension Host E2E
 - `npm run test:e2e:code`: `code` CLI でインストール済み VS Code を使うローカル専用 E2E
+- `npm run test:perf:e2e`: activate 時間とメモリ差分を出力するローカル専用 perf E2E
 
 VS Code でのデバッグは `.vscode/launch.json` の `Run Extension` を使います。
 インストール済みの VS Code を `code` CLI で起動してローカル専用 E2E を回す場合は `npm run test:e2e:code` を使います。

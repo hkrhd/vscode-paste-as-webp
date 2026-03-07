@@ -32,20 +32,16 @@ function installDependencies(platform) {
 
     const dependencies = {
         'win32': [
-            'sharp',
-            '@napi-rs/clipboard'
+            'sharp'
         ],
         'darwin': [
-            'sharp',
-            '@napi-rs/clipboard'
+            'sharp'
         ],
         'linux': [
-            'sharp',
-            '@napi-rs/clipboard'
+            'sharp'
         ],
         'wsl': [
-            'sharp',
-            '@napi-rs/clipboard'
+            'sharp'
         ]
     };
 
@@ -71,10 +67,7 @@ function installDependencies(platform) {
 function verifyBinaries() {
     console.log('バイナリファイルの存在確認中...');
 
-    const requiredPaths = [
-        'node_modules/sharp',
-        'node_modules/@napi-rs/clipboard'
-    ];
+    const requiredPaths = ['node_modules/sharp'];
 
     const missingPaths = [];
 
@@ -123,17 +116,11 @@ function verifyBinaries() {
     console.log(`発見されたバイナリファイル: ${nodeFiles.length}個`);
     nodeFiles.forEach(file => console.log(`  - ${file}`));
 
-    // 少なくとも1つのsharpと1つのclipboardバイナリが必要
+    // 少なくとも1つのsharpバイナリが必要
     const hasSharp = nodeFiles.some(file => file.includes('sharp'));
-    const hasClipboard = nodeFiles.some(file => file.includes('clipboard'));
 
     if (!hasSharp) {
         console.error('Sharp用のバイナリファイルが見つかりません');
-        return false;
-    }
-
-    if (!hasClipboard) {
-        console.error('Clipboard用のバイナリファイルが見つかりません');
         return false;
     }
 

@@ -2,15 +2,19 @@ import * as vscode from 'vscode';
 
 // Obj: Logger utility that outputs to VSCode Output panel
 class Logger {
-    private outputChannel: vscode.OutputChannel;
-
-    constructor() {
-        this.outputChannel = vscode.window.createOutputChannel('WebP Paster');
-    }
+    private outputChannel?: vscode.OutputChannel;
 
     private isDebugEnabled(): boolean {
         const config = vscode.workspace.getConfiguration('vsc-webp-paster');
         return config.get<boolean>('debugMode') ?? false;
+    }
+
+    private getOutputChannel(): vscode.OutputChannel {
+        if (!this.outputChannel) {
+            this.outputChannel = vscode.window.createOutputChannel('WebP Paster');
+        }
+
+        return this.outputChannel;
     }
 
     private formatMessage(prefix: string, ...args: any[]): string {
@@ -22,19 +26,19 @@ class Logger {
     debug(prefix: string, ...args: any[]): void {
         if (this.isDebugEnabled()) {
             const message = this.formatMessage(prefix, ...args);
-            this.outputChannel.appendLine(message);
+            this.getOutputChannel().appendLine(message);
             console.log(`[webpPaster:${prefix}]`, ...args);
         }
     }
 
     error(prefix: string, ...args: any[]): void {
         const message = this.formatMessage(prefix, ...args);
-        this.outputChannel.appendLine(`ERROR: ${message}`);
+        this.getOutputChannel().appendLine(`ERROR: ${message}`);
         console.error(`[webpPaster:${prefix}]`, ...args);
     }
 
     show(): void {
-        this.outputChannel.show();
+        this.getOutputChannel().show();
     }
 }
 

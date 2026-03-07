@@ -8,6 +8,9 @@ const workspaceRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const workspacePath = resolve(workspaceRoot, "src/test/fixtures/workspace");
 const userDataDir = mkdtempSync(join(tmpdir(), "vsc-webp-paster-user-data-"));
 const extensionsDir = mkdtempSync(join(tmpdir(), "vsc-webp-paster-extensions-"));
+const extensionTestsPath = process.argv[2]
+    ? resolve(workspaceRoot, process.argv[2])
+    : resolve(workspaceRoot, "out/test/suite/index.js");
 
 const args = [
     "--new-window",
@@ -16,7 +19,7 @@ const args = [
     `--user-data-dir=${userDataDir}`,
     `--extensions-dir=${extensionsDir}`,
     `--extensionDevelopmentPath=${workspaceRoot}`,
-    `--extensionTestsPath=${resolve(workspaceRoot, "out/test/suite/index.js")}`,
+    `--extensionTestsPath=${extensionTestsPath}`,
     workspacePath,
 ];
 
@@ -24,6 +27,7 @@ console.log("Launching VS Code CLI extension tests");
 console.log(`Workspace: ${workspacePath}`);
 console.log(`User data dir: ${userDataDir}`);
 console.log(`Extensions dir: ${extensionsDir}`);
+console.log(`Extension tests path: ${extensionTestsPath}`);
 
 const child = spawn("code", args, {
     cwd: workspaceRoot,

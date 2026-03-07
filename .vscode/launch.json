@@ -6,10 +6,11 @@
       "type": "extensionHost",
       "request": "launch",
       "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}",
-        "--user-data-dir=${workspaceFolder}/.vscode-test/user-data"
+        "--extensionDevelopmentPath=${workspaceFolder}"
       ],
-      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js"
+      ],
       "preLaunchTask": "npm: compile",
       "sourceMaps": true
     },
@@ -20,9 +21,14 @@
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--extensionTestsPath=${workspaceFolder}/out/test/suite/index.js",
-        "--user-data-dir=${workspaceFolder}/.vscode-test/user-data"
+        "--user-data-dir=${workspaceFolder}/.vscode-test/test-user-data",
+        "--extensions-dir=${workspaceFolder}/.vscode-test/test-extensions",
+        "--profile-temp",
+        "--disable-extensions"
       ],
-      "outFiles": ["${workspaceFolder}/out/**/*.js"],
+      "outFiles": [
+        "${workspaceFolder}/out/**/*.js"
+      ],
       "preLaunchTask": "npm: pretest",
       "sourceMaps": true
     },

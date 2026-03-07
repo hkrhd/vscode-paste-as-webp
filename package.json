@@ -1,153 +1,153 @@
 {
-  "name": "vsc-webp-paster",
-  "displayName": "WebP Image Paster",
-  "description": "Paste images as WebP format in Markdown files. Supports both Windows and macOS.",
-  "version": "0.6.0",
-  "license": "MIT",
-  "icon": "images/icon.png",
-  "engines": {
-    "vscode": "^1.108.0"
-  },
-  "extensionKind": [
-    "ui"
-  ],
-  "categories": [
-    "Other"
-  ],
-  "galleryBanner": {
-    "color": "#0078D4",
-    "theme": "dark"
-  },
-  "activationEvents": [
-    "onLanguage:markdown"
-  ],
-  "main": "./dist/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "vsc-webp-paster.pasteAsWebpInMd",
-        "title": "Paste as WebP in MD"
-      }
-    ],
-    "keybindings": [
-      {
-        "command": "vsc-webp-paster.pasteAsWebpInMd",
-        "key": "ctrl+v",
-        "mac": "cmd+v",
-        "when": "editorTextFocus && !notebookEditorFocused && editorLangId == 'markdown'"
-      }
-    ],
-    "configuration": {
-      "title": "WebP Paster",
-      "properties": {
-        "vsc-webp-paster.imageDir": {
-          "type": "string",
-          "default": "img",
-          "description": "%config.imageDir.description%"
-        },
-        "vsc-webp-paster.quality": {
-          "type": "number",
-          "default": 80,
-          "minimum": 0,
-          "maximum": 100,
-          "description": "%config.quality.description%"
-        },
-        "vsc-webp-paster.namingConvention": {
-          "type": "string",
-          "default": "image-${timestamp}",
-          "description": "%config.namingConvention.description%"
-        },
-        "vsc-webp-paster.insertPattern": {
-          "type": "string",
-          "default": "![${fileName}](${relativePath})",
-          "description": "%config.insertPattern.description%"
-        },
-        "vsc-webp-paster.useWorkspaceRoot": {
-          "type": "boolean",
-          "default": false,
-          "description": "%config.useWorkspaceRoot.description%"
-        },
-        "vsc-webp-paster.debugMode": {
-          "type": "boolean",
-          "default": false,
-          "description": "%config.debugMode.description%"
-        },
-        "vsc-webp-paster.progressDelay": {
-          "type": "number",
-          "default": 0.3,
-          "description": "%config.progressDelay.description%"
-        },
-        "vsc-webp-paster.convertUrlToLink": {
-          "type": "boolean",
-          "default": false,
-          "description": "%config.convertUrlToLink.description%"
-        },
-        "vsc-webp-paster.urlFetchTimeout": {
-          "type": "number",
-          "default": 300,
-          "description": "%config.urlFetchTimeout.description%"
-        }
-      }
-    },
-    "l10n": "./l10n"
-  },
-  "scripts": {
-    "vscode:prepublish": "npm run package",
-    "compile": "npm run check-types && npm run lint && node esbuild.js",
-    "watch": "npm-run-all -p watch:*",
-    "watch:esbuild": "node esbuild.js --watch",
-    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-    "package": "npm run check-types && npm run lint && node esbuild.js --production",
-    "compile-tests": "tsc -p tsconfig.test.json --outDir out",
-    "pretest": "npm run compile-tests && npm run compile",
-    "test": "node ./out/test/runTest.js",
-    "test:e2e:code": "npm run pretest && node ./scripts/run-code-tests.mjs",
-    "package:vsix": "npm run package && vsce package --out vsc-webp-paster.vsix",
-    "check-types": "tsc --noEmit",
-    "lint": "eslint src",
-    "semantic-release": "semantic-release",
-    "release:dry-run": "semantic-release --dry-run",
-    "publish:all": "vsce publish --target darwin-arm64 win32-x64 linux-x64 linux-arm64"
-  },
-  "devDependencies": {
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/commit-analyzer": "^13.0.1",
-    "@semantic-release/git": "^10.0.1",
-    "@semantic-release/github": "^12.0.2",
-    "@semantic-release/npm": "^13.1.3",
-    "@semantic-release/release-notes-generator": "^14.1.0",
-    "@types/mocha": "^10.0.10",
-    "@types/node": "25.x",
-    "@types/vscode": "^1.108.1",
-    "@typescript-eslint/eslint-plugin": "^8.52.0",
-    "@typescript-eslint/parser": "^8.53.1",
-    "@vscode/test-cli": "^0.0.12",
-    "@vscode/test-electron": "^2.5.2",
-    "@vscode/vsce": "^3.7.1",
-    "esbuild": "^0.27.2",
-    "eslint": "^9.39.2",
-    "mocha": "^11.7.4",
-    "npm-run-all": "^4.1.5",
-    "typescript": "^5.9.3"
-  },
-  "dependencies": {
-    "@napi-rs/clipboard": "^1.1.3",
-    "sharp": "^0.34.5"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/hkrhd/vscode-paste-as-webp.git"
-  },
-  "bugs": "https://github.com/hkrhd/vscode-paste-as-webp/issues",
-  "homepage": "https://github.com/hkrhd/vscode-paste-as-webp#readme",
-  "keywords": [
-    "webp",
-    "image",
-    "paste",
-    "markdown",
-    "clipboard",
-    "convert",
-    "optimization"
-  ],
-  "publisher": "hkrhd"
+	"name": "vsc-webp-paster",
+	"displayName": "WebP Image Paster",
+	"description": "Paste images as WebP format in Markdown files. Supports both Windows and macOS.",
+	"version": "0.6.0",
+	"license": "MIT",
+	"icon": "images/icon.png",
+	"engines": {
+		"vscode": "^1.108.0"
+	},
+	"extensionKind": [
+		"ui"
+	],
+	"categories": [
+		"Other"
+	],
+	"galleryBanner": {
+		"color": "#0078D4",
+		"theme": "dark"
+	},
+	"activationEvents": [
+		"onLanguage:markdown"
+	],
+	"main": "./dist/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "vsc-webp-paster.pasteAsWebpInMd",
+				"title": "Paste as WebP in MD"
+			}
+		],
+		"keybindings": [
+			{
+				"command": "vsc-webp-paster.pasteAsWebpInMd",
+				"key": "ctrl+v",
+				"mac": "cmd+v",
+				"when": "editorTextFocus && !notebookEditorFocused && editorLangId == 'markdown'"
+			}
+		],
+		"configuration": {
+			"title": "WebP Paster",
+			"properties": {
+				"vsc-webp-paster.imageDir": {
+					"type": "string",
+					"default": "img",
+					"description": "%config.imageDir.description%"
+				},
+				"vsc-webp-paster.quality": {
+					"type": "number",
+					"default": 80,
+					"minimum": 0,
+					"maximum": 100,
+					"description": "%config.quality.description%"
+				},
+				"vsc-webp-paster.namingConvention": {
+					"type": "string",
+					"default": "image-${timestamp}",
+					"description": "%config.namingConvention.description%"
+				},
+				"vsc-webp-paster.insertPattern": {
+					"type": "string",
+					"default": "![${fileName}](${relativePath})",
+					"description": "%config.insertPattern.description%"
+				},
+				"vsc-webp-paster.useWorkspaceRoot": {
+					"type": "boolean",
+					"default": false,
+					"description": "%config.useWorkspaceRoot.description%"
+				},
+				"vsc-webp-paster.debugMode": {
+					"type": "boolean",
+					"default": false,
+					"description": "%config.debugMode.description%"
+				},
+				"vsc-webp-paster.progressDelay": {
+					"type": "number",
+					"default": 0.3,
+					"description": "%config.progressDelay.description%"
+				},
+				"vsc-webp-paster.convertUrlToLink": {
+					"type": "boolean",
+					"default": false,
+					"description": "%config.convertUrlToLink.description%"
+				},
+				"vsc-webp-paster.urlFetchTimeout": {
+					"type": "number",
+					"default": 300,
+					"description": "%config.urlFetchTimeout.description%"
+				}
+			}
+		},
+		"l10n": "./l10n"
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run package",
+		"compile": "npm run check-types && npm run lint && node esbuild.js",
+		"watch": "npm-run-all -p watch:*",
+		"watch:esbuild": "node esbuild.js --watch",
+		"watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+		"package": "npm run check-types && npm run lint && node esbuild.js --production",
+		"compile-tests": "tsc -p tsconfig.test.json --outDir out",
+		"pretest": "npm run compile-tests && npm run compile",
+		"test": "node ./out/test/runTest.js",
+		"test:e2e:code": "npm run pretest && node ./scripts/run-code-tests.mjs",
+		"test:perf:e2e": "npm run pretest && node ./out/test/runPerfTest.js",
+		"package:vsix": "npm run package && vsce package --out vsc-webp-paster.vsix",
+		"check-types": "tsc --noEmit",
+		"lint": "eslint src",
+		"semantic-release": "semantic-release",
+		"release:dry-run": "semantic-release --dry-run",
+		"publish:all": "vsce publish --target darwin-arm64 win32-x64 linux-x64 linux-arm64"
+	},
+	"devDependencies": {
+		"@semantic-release/changelog": "^6.0.3",
+		"@semantic-release/commit-analyzer": "^13.0.1",
+		"@semantic-release/git": "^10.0.1",
+		"@semantic-release/github": "^12.0.6",
+		"@semantic-release/npm": "^13.1.5",
+		"@semantic-release/release-notes-generator": "^14.1.0",
+		"@types/mocha": "^10.0.10",
+		"@types/node": "^25.3.5",
+		"@types/vscode": "^1.109.0",
+		"@typescript-eslint/eslint-plugin": "^8.56.1",
+		"@typescript-eslint/parser": "^8.56.1",
+		"@vscode/test-cli": "^0.0.12",
+		"@vscode/test-electron": "^2.5.2",
+		"@vscode/vsce": "^3.7.1",
+		"esbuild": "^0.27.3",
+		"eslint": "^10.0.3",
+		"mocha": "^11.7.5",
+		"npm-run-all": "^4.1.5",
+		"typescript": "^5.9.3"
+	},
+	"dependencies": {
+		"sharp": "^0.34.5"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/hkrhd/vscode-paste-as-webp.git"
+	},
+	"bugs": "https://github.com/hkrhd/vscode-paste-as-webp/issues",
+	"homepage": "https://github.com/hkrhd/vscode-paste-as-webp#readme",
+	"keywords": [
+		"webp",
+		"image",
+		"paste",
+		"markdown",
+		"clipboard",
+		"convert",
+		"optimization"
+	],
+	"publisher": "hkrhd"
 }

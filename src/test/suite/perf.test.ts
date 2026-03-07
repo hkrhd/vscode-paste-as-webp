@@ -9,23 +9,60 @@ const BASE64_PNG_DATA_URL = [
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7Z0ioAAAAASUVORK5CYII=",
 ].join("");
 
-function getNonBuiltinExtensions(): vscode.Extension<unknown>[] {
-    return vscode.extensions.all
-        .filter((extension) => extension.packageJSON.isBuiltin !== true)
-        .sort((left, right) => left.id.localeCompare(right.id));
+interface PerfMetric {
+    scenario: "activate-cold" | "paste-plain-text" | "paste-base64-image";
+    durationMs: number;
+    rssBeforeBytes: number;
+    rssAfterBytes: number;
+    rssDeltaBytes: number;
+    heapUsedBeforeBytes: number;
+    heapUsedAfterBytes: number;
+    heapUsedDeltaBytes: number;
+}
+
+function emitMetric(metric: PerfMetric): void {
+    console.log(`[perf] ${JSON.stringify(metric)}`);
+}
+
+function captureMemory(): { rssBytes: number; heapUsedBytes: number } {
+    const usage = process.memoryUsage();
+
+    return {
+        rssBytes: usage.rss,
+        heapUsedBytes: usage.heapUsed,
+    };
+}
+
+async function measureScenario<T>(scenario: PerfMetric["scenario"], task: () => Promise<T>): Promise<T> {
+    const before = captureMemory();
+    const startedAt = performance.now();
+    const result = await task();
+    const after = captureMemory();
+
+    emitMetric({
+        scenario,
+        durationMs: Number((performance.now() - startedAt).toFixed(3)),
+        rssBeforeBytes: before.rssBytes,
+        rssAfterBytes: after.rssBytes,
+        rssDeltaBytes: after.rssBytes - before.rssBytes,
+        heapUsedBeforeBytes: before.heapUsedBytes,
+        heapUsedAfterBytes: after.heapUsedBytes,
+        heapUsedDeltaBytes: after.heapUsedBytes - before.heapUsedBytes,
+    });
+
+    return result;
 }
 
 async function openScratchMarkdown(): Promise<{
     document: vscode.TextDocument;
-    editor: vscode.TextEditor;
     scratchDir: vscode.Uri;
 }> {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-    assert.ok(workspaceFolder, "Workspace folder should be available for E2E tests");
+    assert.ok(workspaceFolder, "Workspace folder should be available for perf tests");
 
     const scratchDir = vscode.Uri.joinPath(
         workspaceFolder.uri,
-        ".tmp-e2e",
+        ".tmp-perf",
         `run-${Date.now()}-${Math.random().toString(16).slice(2)}`
     );
     await vscode.workspace.fs.createDirectory(scratchDir);
@@ -37,7 +74,7 @@ async function openScratchMarkdown(): Promise<{
     const editor = await vscode.window.showTextDocument(document);
     editor.selection = new vscode.Selection(0, 0, 0, 0);
 
-    return { document, editor, scratchDir };
+    return { document, scratchDir };
 }
 
 async function cleanupScratchDir(scratchDir: vscode.Uri, documentUri: vscode.Uri): Promise<void> {
@@ -51,55 +88,42 @@ async function cleanupScratchDir(scratchDir: vscode.Uri, documentUri: vscode.Uri
 
 async function configureExtension(): Promise<void> {
     const config = vscode.workspace.getConfiguration("vsc-webp-paster");
-    await config.update("imageDir", "e2e-images", vscode.ConfigurationTarget.Global);
-    await config.update("namingConvention", "e2e-image", vscode.ConfigurationTarget.Global);
+    await config.update("imageDir", "perf-images", vscode.ConfigurationTarget.Global);
+    await config.update("namingConvention", "perf-image", vscode.ConfigurationTarget.Global);
     await config.update("insertPattern", "![${fileName}](${relativePath})", vscode.ConfigurationTarget.Global);
     await config.update("useWorkspaceRoot", false, vscode.ConfigurationTarget.Global);
     await config.update("progressDelay", 0, vscode.ConfigurationTarget.Global);
+    await config.update("convertUrlToLink", false, vscode.ConfigurationTarget.Global);
 }
 
 suiteSetup(async () => {
-    const extension = vscode.extensions.getExtension(EXTENSION_ID);
-    assert.ok(extension, "Extension should be discoverable by VS Code");
-    await extension!.activate();
     await configureExtension();
-
-    console.log("Non-builtin extensions visible to the test host:");
-    for (const visibleExtension of getNonBuiltinExtensions()) {
-        console.log(
-            `- ${visibleExtension.id}@${visibleExtension.packageJSON.version} path=${visibleExtension.extensionPath}`
-        );
-    }
 });
 
-suite("Extension Test Suite", () => {
-    test("runs only the development copy of the extension in an isolated extension directory", async () => {
-        const nonBuiltinExtensions = getNonBuiltinExtensions();
-        assert.deepStrictEqual(
-            nonBuiltinExtensions.map((extension) => extension.id),
-            [EXTENSION_ID]
-        );
-
-        const extension = nonBuiltinExtensions[0];
-        assert.strictEqual(path.resolve(extension.extensionPath), path.resolve(__dirname, "../../.."));
-    });
-
-    test("extension activates and registers the markdown paste command", async () => {
+suite("Performance Test Suite", () => {
+    test("measures cold activation duration and memory delta", async () => {
         const extension = vscode.extensions.getExtension(EXTENSION_ID);
         assert.ok(extension, "Extension should be discoverable by VS Code");
-        assert.strictEqual(extension!.isActive, true);
+        assert.strictEqual(extension!.isActive, false, "Extension should start inactive for cold activation measurement");
 
+        await measureScenario("activate-cold", async () => {
+            await extension!.activate();
+        });
+
+        assert.strictEqual(extension!.isActive, true);
         const commands = await vscode.commands.getCommands(true);
         assert.ok(commands.includes(COMMAND_ID));
     });
 
-    test("pastes plain text into the active markdown editor", async () => {
+    test("measures plain text paste duration and memory delta", async () => {
         const { document, scratchDir } = await openScratchMarkdown();
 
         try {
             await vscode.env.clipboard.writeText("plain clipboard text");
-            await vscode.commands.executeCommand(COMMAND_ID);
-            await document.save();
+            await measureScenario("paste-plain-text", async () => {
+                await vscode.commands.executeCommand(COMMAND_ID);
+                await document.save();
+            });
 
             assert.strictEqual(document.getText(), "plain clipboard text");
         } finally {
@@ -107,18 +131,20 @@ suite("Extension Test Suite", () => {
         }
     });
 
-    test("converts base64 clipboard data into a webp file and markdown image link", async () => {
+    test("measures base64 image paste duration and memory delta", async () => {
         const { document, scratchDir } = await openScratchMarkdown();
 
         try {
             await vscode.env.clipboard.writeText(BASE64_PNG_DATA_URL);
-            await vscode.commands.executeCommand(COMMAND_ID);
-            await document.save();
+            await measureScenario("paste-base64-image", async () => {
+                await vscode.commands.executeCommand(COMMAND_ID);
+                await document.save();
+            });
 
             const markdown = document.getText();
             assert.match(
                 markdown,
-                /^!\[e2e-image(?:-\d+)?\.webp\]\(e2e-images\/e2e-image(?:-\d+)?\.webp\)$/
+                /^!\[perf-image(?:-\d+)?\.webp\]\(perf-images\/perf-image(?:-\d+)?\.webp\)$/
             );
 
             const fileNameMatch = markdown.match(/\((?<relativePath>[^)]+)\)$/);
@@ -127,7 +153,6 @@ suite("Extension Test Suite", () => {
             const imageUri = vscode.Uri.joinPath(scratchDir, fileNameMatch.groups.relativePath);
             const imageStat = await vscode.workspace.fs.stat(imageUri);
             assert.ok(imageStat.size > 0, "Generated WebP file should not be empty");
-
             assert.strictEqual(path.extname(imageUri.fsPath), ".webp");
         } finally {
             await cleanupScratchDir(scratchDir, document.uri);

@@ -1,11 +1,10 @@
 .vscode/**
 .vscode-test/**
 out/**
+build
 build/**
 node_modules/**
 !node_modules/sharp/**
-!node_modules/@napi-rs/clipboard/**
-!node_modules/@napi-rs/clipboard-*/**
 !node_modules/@img/**
 !node_modules/detect-libc/**
 !node_modules/color/**
