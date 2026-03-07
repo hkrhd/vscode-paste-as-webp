@@ -1,6 +1,7 @@
 .vscode/**
 .vscode-test/**
 out/**
+build/**
 node_modules/**
 !node_modules/sharp/**
 !node_modules/@napi-rs/clipboard/**
@@ -17,9 +18,15 @@ node_modules/**
 src/**
 scripts/**
 .gitignore
+.coderabbit.yaml
+.nvmrc
+.releaserc.json
+AGENTS.md
+README_JA.md
 .yarnrc
 esbuild.js
 vsc-extension-quickstart.md
+tsconfig.test.json
 **/tsconfig.json
 **/eslint.config.mjs
 **/*.map
@@ -34,6 +41,11 @@ vsc-extension-quickstart.md
 .env
 .git.bak/**
 img/**
+doc/**
 prompts/**
 scratch/**
 .claude/**
+.github/**
+.jj/**
+CLAUDE.md
+FEATURES.md

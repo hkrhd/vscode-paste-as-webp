@@ -12,6 +12,25 @@
       "outFiles": ["${workspaceFolder}/dist/**/*.js"],
       "preLaunchTask": "npm: compile",
       "sourceMaps": true
+    },
+    {
+      "name": "Run Extension Tests",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionTestsPath=${workspaceFolder}/out/test/suite/index.js",
+        "--user-data-dir=${workspaceFolder}/.vscode-test/user-data"
+      ],
+      "outFiles": ["${workspaceFolder}/out/**/*.js"],
+      "preLaunchTask": "npm: pretest",
+      "sourceMaps": true
+    },
+    {
+      "name": "Run Local VS Code E2E",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run test:e2e:code"
     }
   ]
 }

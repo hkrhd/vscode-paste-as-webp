@@ -46,7 +46,7 @@
 
 ## 📋 要件
 
-- VSCode 1.73.0以上
+- VSCode 1.108.0以上
 - darwin-arm64, win32-x64, linux-x64, linux-arm64
 
 **クリップボード取得方法:**
@@ -54,6 +54,28 @@
 - **Windows**: PowerShell (.NET System.Windows.Forms.Clipboard)
 - **macOS**: AppleScript (osascript)
 - **Linux**: xclip (X11) または wl-paste (Wayland) - インストール必要
+
+## 開発
+
+```bash
+npm ci
+npm run compile
+npm test
+npm run test:e2e:code
+npm run package:vsix
+```
+
+ローカルテスト:
+- `npm test`: CI と同じ Extension Host E2E
+- `npm run test:e2e:code`: `code` CLI でインストール済み VS Code を使うローカル専用 E2E
+
+VS Code でのデバッグは `.vscode/launch.json` の `Run Extension` を使います。
+インストール済みの VS Code を `code` CLI で起動してローカル専用 E2E を回す場合は `npm run test:e2e:code` を使います。
+
+## リリース
+
+Marketplace 公開は `semantic-release` を起点に自動化します。
+`main` で GitHub Release を作成し、その release workflow が 4 ターゲットを VS Code Marketplace へ publish します。
 
 ## 📝 ライセンス
 

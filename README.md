@@ -49,7 +49,7 @@ See configuration descriptions for details
 
 ## 📋 Requirements
 
-- VSCode 1.73.0 or higher
+- VSCode 1.108.0 or higher
 - darwin-arm64, win32-x64, linux-x64, linux-arm64
 
 **Clipboard Access Methods:**
@@ -57,6 +57,28 @@ See configuration descriptions for details
 - **Windows**: PowerShell (.NET System.Windows.Forms.Clipboard)
 - **macOS**: AppleScript (osascript)
 - **Linux**: xclip (X11) or wl-paste (Wayland) - install required
+
+## Development
+
+```bash
+npm ci
+npm run compile
+npm test
+npm run test:e2e:code
+npm run package:vsix
+```
+
+Local test commands:
+- `npm test`: CI-compatible Extension Host E2E
+- `npm run test:e2e:code`: local-only E2E using your installed VS Code via `code` CLI
+
+For VS Code debugging, launch `Run Extension` from `.vscode/launch.json`.
+To run the local-only E2E suite against your installed VS Code via the `code` CLI, use `npm run test:e2e:code`.
+
+## Release
+
+Marketplace publishing is automated with `semantic-release`.
+The `main` branch creates the GitHub Release, and the release workflow publishes the 4 supported targets to the VS Code Marketplace.
 
 ## 📝 License
 
