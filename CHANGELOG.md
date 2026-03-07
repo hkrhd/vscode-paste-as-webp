@@ -1,3 +1,10 @@
+## [0.6.1](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.6.0...v0.6.1) (2026-03-07)
+
+
+### Bug Fixes
+
+* document clipboard handling and add local perf e2e ([8041f95](https://github.com/hkrhd/vscode-paste-as-webp/commit/8041f95fb6d0552c2ffcbd9c3d80f370ab2dc859))
+
 # [0.6.0](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.5.14...v0.6.0) (2025-12-21)
 
 
