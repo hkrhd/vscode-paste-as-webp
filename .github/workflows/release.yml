@@ -3,6 +3,10 @@ name: Release Multi-Platform
 on:
   release:
     types: [published]
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/release.yml
   workflow_dispatch:
     inputs:
       tag:
@@ -11,17 +15,18 @@ on:
         type: string
 
 concurrency:
-  group: release-${{ github.event.release.tag_name || inputs.tag }}
+  group: release-${{ github.event.release.tag_name || inputs.tag || github.sha }}
   cancel-in-progress: false
 
 jobs:
   validate:
+    if: ${{ github.event_name != 'push' || contains(github.event.head_commit.message, '[publish-current-version]') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.release.tag_name || inputs.tag }}
+          ref: ${{ github.event.release.tag_name || inputs.tag || github.sha }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -42,6 +47,7 @@ jobs:
         run: xvfb-run -a npm test
 
   build-and-publish:
+    if: ${{ github.event_name != 'push' || contains(github.event.head_commit.message, '[publish-current-version]') }}
     needs: validate
     strategy:
       matrix:
@@ -61,7 +67,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.release.tag_name || inputs.tag }}
+          ref: ${{ github.event.release.tag_name || inputs.tag || github.sha }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
