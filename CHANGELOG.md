@@ -1,3 +1,10 @@
+## [0.6.2](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.6.1...v0.6.2) (2026-03-08)
+
+
+### Bug Fixes
+
+* align @types/vscode with engines.vscode ([380f8e3](https://github.com/hkrhd/vscode-paste-as-webp/commit/380f8e3fea8db12ad1ed63857dd9948b38b4448d))
+
 ## [0.6.1](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.6.0...v0.6.1) (2026-03-07)
 
 
