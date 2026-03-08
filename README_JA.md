@@ -12,7 +12,7 @@
 - **貼り付けパターンのカスタマイズ** - htmlタグを使った50%縮小貼り付けなど
 - **画像名に日時を入れてユニークに**
 - **ワークスペースルートを基準にした画像保存**
-- **クロスプラットフォーム動作** - Windows、macOS、Linux，リモート(WSL、ssh、devcontainer) 
+- **クロスプラットフォーム動作** - Windows、macOS、Linux，リモート(WSL、ssh、devcontainer)
 
 ## インストール
 
@@ -68,12 +68,10 @@ npm run package:vsix
 ```
 
 ローカルテスト:
+
 - `npm test`: CI と同じ Extension Host E2E
 - `npm run test:e2e:code`: `code` CLI でインストール済み VS Code を使うローカル専用 E2E
 - `npm run test:perf:e2e`: activate 時間とメモリ差分を出力するローカル専用 perf E2E
-
-VS Code でのデバッグは `.vscode/launch.json` の `Run Extension` を使います。
-インストール済みの VS Code を `code` CLI で起動してローカル専用 E2E を回す場合は `npm run test:e2e:code` を使います。
 
 ## リリース
 

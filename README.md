@@ -71,12 +71,10 @@ npm run package:vsix
 ```
 
 Local test commands:
+
 - `npm test`: CI-compatible Extension Host E2E
 - `npm run test:e2e:code`: local-only E2E using your installed VS Code via `code` CLI
 - `npm run test:perf:e2e`: local-only performance E2E that prints activation and memory metrics
-
-For VS Code debugging, launch `Run Extension` from `.vscode/launch.json`.
-To run the local-only E2E suite against your installed VS Code via the `code` CLI, use `npm run test:e2e:code`.
 
 ## Release
 

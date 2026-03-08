@@ -46,11 +46,12 @@ repos:
         files: \.ts$
         pass_filenames: false
 
-  # package.jsonの形式チェック
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v4.0.0-alpha.8
+  # VS Code APIバージョン整合性チェック
+  - repo: local
     hooks:
-      - id: prettier
-        name: Prettier フォーマッター
-        files: \.(json|md|yaml|yml)$
-        args: ['--write']
+      - id: vscode-types-version-check
+        name: engines.vscode と @types/vscode の整合性チェック
+        entry: npm run check:vscode-types-version
+        language: system
+        files: ^package\.json$
+        pass_filenames: false
