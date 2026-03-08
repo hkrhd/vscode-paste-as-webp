@@ -1,9 +1,12 @@
 import * as assert from "assert";
+import { readFile } from "node:fs/promises";
 import * as path from "path";
 import * as vscode from "vscode";
 
 const EXTENSION_ID = "hkrhd.vsc-webp-paster";
 const COMMAND_ID = "vsc-webp-paster.pasteAsWebpInMd";
+const REPO_ROOT = path.resolve(__dirname, "../../..");
+const DIST_ENTRY = path.resolve(REPO_ROOT, "dist/extension.js");
 const BASE64_PNG_DATA_URL = [
     "data:image/png;base64,",
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7Z0ioAAAAASUVORK5CYII=",
@@ -13,6 +16,28 @@ function getNonBuiltinExtensions(): vscode.Extension<unknown>[] {
     return vscode.extensions.all
         .filter((extension) => extension.packageJSON.isBuiltin !== true)
         .sort((left, right) => left.id.localeCompare(right.id));
+}
+
+function getExtensionOrFail(): vscode.Extension<unknown> {
+    const extension = vscode.extensions.getExtension(EXTENSION_ID);
+    assert.ok(extension, "Extension should be discoverable by VS Code");
+
+    return extension;
+}
+
+async function waitForActivation(
+    extension: vscode.Extension<unknown>,
+    timeoutMs = 5_000
+): Promise<void> {
+    const startedAt = Date.now();
+
+    while (!extension.isActive) {
+        if (Date.now() - startedAt >= timeoutMs) {
+            assert.fail(`Extension did not activate within ${timeoutMs}ms`);
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 50));
+    }
 }
 
 async function openScratchMarkdown(): Promise<{
@@ -59,9 +84,6 @@ async function configureExtension(): Promise<void> {
 }
 
 suiteSetup(async () => {
-    const extension = vscode.extensions.getExtension(EXTENSION_ID);
-    assert.ok(extension, "Extension should be discoverable by VS Code");
-    await extension!.activate();
     await configureExtension();
 
     console.log("Non-builtin extensions visible to the test host:");
@@ -73,21 +95,59 @@ suiteSetup(async () => {
 });
 
 suite("Extension Test Suite", () => {
-    test("runs only the development copy of the extension in an isolated extension directory", async () => {
+    test("loads only the development copy from the repository root", async () => {
+        const extension = getExtensionOrFail();
         const nonBuiltinExtensions = getNonBuiltinExtensions();
         assert.deepStrictEqual(
             nonBuiltinExtensions.map((extension) => extension.id),
             [EXTENSION_ID]
         );
 
-        const extension = nonBuiltinExtensions[0];
-        assert.strictEqual(path.resolve(extension.extensionPath), path.resolve(__dirname, "../../.."));
+        assert.strictEqual(extension.isActive, false, "Extension should start inactive before markdown is opened");
+        assert.strictEqual(path.resolve(extension.extensionPath), REPO_ROOT);
+        assert.strictEqual(path.resolve(extension.extensionPath, extension.packageJSON.main), DIST_ENTRY);
+        assert.strictEqual(path.resolve(nonBuiltinExtensions[0].extensionPath), REPO_ROOT);
     });
 
-    test("extension activates and registers the markdown paste command", async () => {
-        const extension = vscode.extensions.getExtension(EXTENSION_ID);
-        assert.ok(extension, "Extension should be discoverable by VS Code");
-        assert.strictEqual(extension!.isActive, true);
+    test("keeps extensionDevelopmentPath pointed at the extension root", async () => {
+        const launchConfigText = await readFile(path.resolve(REPO_ROOT, ".vscode/launch.json"), "utf8");
+        const launchConfig = JSON.parse(launchConfigText) as {
+            configurations?: Array<{ name?: string; args?: string[] }>;
+        };
+        const runExtensionConfig = launchConfig.configurations?.find(
+            (configuration) => configuration.name === "Run Extension"
+        );
+        const runTestsConfig = launchConfig.configurations?.find(
+            (configuration) => configuration.name === "Run Extension Tests"
+        );
+
+        assert.ok(runExtensionConfig, "Run Extension config should exist");
+        assert.ok(runExtensionConfig.args?.includes("--extensionDevelopmentPath=${workspaceFolder}"));
+        assert.ok(runTestsConfig, "Run Extension Tests config should exist");
+        assert.ok(runTestsConfig.args?.includes("--extensionDevelopmentPath=${workspaceFolder}"));
+
+        const cliRunner = await readFile(path.resolve(REPO_ROOT, "scripts/run-code-tests.mjs"), "utf8");
+        assert.ok(cliRunner.includes("`--extensionDevelopmentPath=${workspaceRoot}`"));
+
+        const electronRunner = await readFile(path.resolve(REPO_ROOT, "src/test/runTest.ts"), "utf8");
+        assert.ok(electronRunner.includes('const extensionDevelopmentPath = path.resolve(__dirname, "../../");'));
+
+        const perfRunner = await readFile(path.resolve(REPO_ROOT, "src/test/runPerfTest.ts"), "utf8");
+        assert.ok(perfRunner.includes('const extensionDevelopmentPath = path.resolve(__dirname, "../../");'));
+    });
+
+    test("activates when a markdown file is opened and registers the markdown paste command", async () => {
+        const extension = getExtensionOrFail();
+        assert.strictEqual(extension.isActive, false, "Extension should still be inactive before markdown is opened");
+
+        const { document, scratchDir } = await openScratchMarkdown();
+
+        try {
+            assert.strictEqual(document.languageId, "markdown");
+            await waitForActivation(extension);
+        } finally {
+            await cleanupScratchDir(scratchDir, document.uri);
+        }
 
         const commands = await vscode.commands.getCommands(true);
         assert.ok(commands.includes(COMMAND_ID));
