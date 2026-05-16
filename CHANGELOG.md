@@ -1,3 +1,10 @@
+## [0.6.5](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.6.4...v0.6.5) (2026-05-16)
+
+
+### Bug Fixes
+
+* **deps-dev:** address npm audit findings ([da4c58a](https://github.com/hkrhd/vscode-paste-as-webp/commit/da4c58a73b49389629b4833f7d32c2a28f25769a))
+
 ## [0.6.4](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.6.3...v0.6.4) (2026-05-16)
 
 
