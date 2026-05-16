@@ -185,10 +185,9 @@ export class PasteCommand {
         );
         logger.debug('PasteCommand', 'targetDirUri:', targetDirUri.toString());
 
-        // Obj: Convert Uri to fsPath for generateUniqueFileName
         const fileName = await ConfigUtils.generateUniqueFileName(
             config.namingConvention,
-            targetDirUri.fsPath
+            targetDirUri
         );
         logger.debug('PasteCommand', 'fileName:', fileName);
 

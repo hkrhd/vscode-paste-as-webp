@@ -193,4 +193,36 @@ suite("Extension Test Suite", () => {
             await cleanupScratchDir(scratchDir, document.uri);
         }
     });
+
+    test("increments image file name when the configured name already exists", async () => {
+        const { document, editor, scratchDir } = await openScratchMarkdown();
+
+        try {
+            await vscode.env.clipboard.writeText(BASE64_PNG_DATA_URL);
+            await vscode.commands.executeCommand(COMMAND_ID);
+            await document.save();
+
+            const firstLineEnd = document.lineAt(0).range.end;
+            editor.selection = new vscode.Selection(firstLineEnd, firstLineEnd);
+
+            await vscode.env.clipboard.writeText(BASE64_PNG_DATA_URL);
+            await vscode.commands.executeCommand(COMMAND_ID);
+            await document.save();
+
+            const markdown = document.getText();
+            const relativePaths = Array.from(markdown.matchAll(/\((e2e-images\/[^)]+\.webp)\)/g), (match) => match[1]);
+            assert.deepStrictEqual(relativePaths, [
+                "e2e-images/e2e-image.webp",
+                "e2e-images/e2e-image-1.webp",
+            ]);
+
+            for (const relativePath of relativePaths) {
+                const imageUri = vscode.Uri.joinPath(scratchDir, relativePath);
+                const imageStat = await vscode.workspace.fs.stat(imageUri);
+                assert.ok(imageStat.size > 0, `${relativePath} should not be empty`);
+            }
+        } finally {
+            await cleanupScratchDir(scratchDir, document.uri);
+        }
+    });
 });
