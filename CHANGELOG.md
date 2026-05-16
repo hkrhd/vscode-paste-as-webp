@@ -1,3 +1,10 @@
+## [0.6.4](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.6.3...v0.6.4) (2026-05-16)
+
+
+### Bug Fixes
+
+* **deps-dev:** refresh development dependencies ([94e97de](https://github.com/hkrhd/vscode-paste-as-webp/commit/94e97de82e0765316d906b0fccfa1dba6d523d32))
+
 ## [0.6.3](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.6.2...v0.6.3) (2026-04-30)
 
 
