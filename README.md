@@ -49,7 +49,7 @@ See configuration descriptions for details
 
 ## 📋 Requirements
 
-- VSCode 1.108.0 or higher
+- VSCode 1.118.0 or higher
 - darwin-arm64, win32-x64, linux-x64, linux-arm64
 
 **Clipboard Access Methods:**
@@ -75,6 +75,8 @@ Local test commands:
 - `npm test`: CI-compatible Extension Host E2E
 - `npm run test:e2e:code`: local-only E2E using your installed VS Code via `code` CLI
 - `npm run test:perf:e2e`: local-only performance E2E that prints activation and memory metrics
+
+CI runs the Extension Host E2E suite against both the minimum supported VS Code version and the latest stable version. To select a downloaded VS Code version locally, set `VSCODE_TEST_VERSION` (for example, `VSCODE_TEST_VERSION=1.118.0 npm test`).
 
 ## Release
 

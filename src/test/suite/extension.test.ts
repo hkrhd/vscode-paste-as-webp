@@ -9,7 +9,7 @@ const REPO_ROOT = path.resolve(__dirname, "../../..");
 const DIST_ENTRY = path.resolve(REPO_ROOT, "dist/extension.js");
 const BASE64_PNG_DATA_URL = [
     "data:image/png;base64,",
-    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7Z0ioAAAAASUVORK5CYII=",
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAADUlEQVQImWP4z8DwHwAFAAH/q842iQAAAABJRU5ErkJggg==",
 ].join("");
 
 function getNonBuiltinExtensions(): vscode.Extension<unknown>[] {
@@ -189,6 +189,10 @@ suite("Extension Test Suite", () => {
             assert.ok(imageStat.size > 0, "Generated WebP file should not be empty");
 
             assert.strictEqual(path.extname(imageUri.fsPath), ".webp");
+
+            const imageData = await vscode.workspace.fs.readFile(imageUri);
+            assert.strictEqual(Buffer.from(imageData.subarray(0, 4)).toString("ascii"), "RIFF");
+            assert.strictEqual(Buffer.from(imageData.subarray(8, 12)).toString("ascii"), "WEBP");
         } finally {
             await cleanupScratchDir(scratchDir, document.uri);
         }

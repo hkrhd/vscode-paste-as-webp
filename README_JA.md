@@ -46,7 +46,7 @@
 
 ## 📋 要件
 
-- VSCode 1.108.0以上
+- VSCode 1.118.0以上
 - darwin-arm64, win32-x64, linux-x64, linux-arm64
 
 **クリップボード取得方法:**
@@ -72,6 +72,8 @@ npm run package:vsix
 - `npm test`: CI と同じ Extension Host E2E
 - `npm run test:e2e:code`: `code` CLI でインストール済み VS Code を使うローカル専用 E2E
 - `npm run test:perf:e2e`: activate 時間とメモリ差分を出力するローカル専用 perf E2E
+
+CI では Extension Host E2E を最小対応 VS Code と最新安定版の両方で実行します。ローカルでダウンロード版を指定する場合は `VSCODE_TEST_VERSION` を設定します（例: `VSCODE_TEST_VERSION=1.118.0 npm test`）。
 
 ## リリース
 

@@ -11,6 +11,7 @@ async function main(): Promise<void> {
         const extensionsDir = mkdtempSync(path.join(tmpdir(), "vsc-webp-paster-test-extensions-"));
 
         await runTests({
+            version: process.env.VSCODE_TEST_VERSION ?? "stable",
             extensionDevelopmentPath,
             extensionTestsPath,
             launchArgs: [

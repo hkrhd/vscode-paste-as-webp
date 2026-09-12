@@ -6,7 +6,7 @@ const EXTENSION_ID = "hkrhd.vsc-webp-paster";
 const COMMAND_ID = "vsc-webp-paster.pasteAsWebpInMd";
 const BASE64_PNG_DATA_URL = [
     "data:image/png;base64,",
-    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7Z0ioAAAAASUVORK5CYII=",
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAADUlEQVQImWP4z8DwHwAFAAH/q842iQAAAABJRU5ErkJggg==",
 ].join("");
 
 interface PerfMetric {
