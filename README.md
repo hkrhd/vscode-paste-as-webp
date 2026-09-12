@@ -63,3 +63,7 @@ URL conversion fetches the static HTML page title. If the title cannot be fetche
 ## 📝 License
 
 MIT License
+
+## Limitations
+
+Markdown Editor (Experimental) is not supported because it does not expose the standard Text Editor API required to insert content at the cursor position.

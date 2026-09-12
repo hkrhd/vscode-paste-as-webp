@@ -63,3 +63,7 @@ URL変換では静的HTMLのページタイトルを取得します．1sタイ�
 ## 📝 ライセンス
 
 MIT License
+
+## 制限事項
+
+Markdown Editor (Experimental) は、カーソル位置への挿入に必要な標準の Text Editor API を公開していないため、現在未対応です。
