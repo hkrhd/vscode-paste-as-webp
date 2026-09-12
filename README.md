@@ -15,6 +15,7 @@ VSCode extension that converts clipboard images to WebP format and pastes them d
 - **Customize paste patterns** - HTML tag insertion for 50% scaled images, etc.
 - **Unique image names with timestamps**
 - **Save images relative to workspace root**
+- **Paste URLs with page titles** - Converts a copied URL into a Markdown link
 - **Cross-platform** - Works on Windows, macOS, Linux, and remote environments (WSL, SSH, devcontainer)
 
 ## Installation
@@ -24,9 +25,11 @@ VSCode extension that converts clipboard images to WebP format and pastes them d
 
 ## Usage
 
-1. Copy image to clipboard
+1. Copy an image or URL to clipboard
 2. Open Markdown file in VSCode
 3. Press `Ctrl+V` (or `Cmd+V` on Mac)
+
+A copied URL such as `https://code.visualstudio.com/` is pasted as `[Visual Studio Code](<https://code.visualstudio.com/>)`.
 
 **Alternative methods:**
 
@@ -43,9 +46,13 @@ See configuration descriptions for details
   "vsc-webp-paster.namingConvention": "image-${timestamp}",
   "vsc-webp-paster.insertPattern": "![${fileName}](${relativePath})",
   "vsc-webp-paster.useWorkspaceRoot": false,
-  "vsc-webp-paster.progressDelay": 0.3
+  "vsc-webp-paster.progressDelay": 0.3,
+  "vsc-webp-paster.convertUrlToLink": true,
+  "vsc-webp-paster.urlFetchTimeout": 1500
 }
 ```
+
+URL conversion fetches the static HTML page title. If the title cannot be fetched within the timeout, the original URL is pasted. Pages that set their title only with JavaScript or require sign-in are not supported. Set `convertUrlToLink` to `false` to paste URLs without making a request.
 
 ## 📋 Requirements
 

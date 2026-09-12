@@ -37,8 +37,8 @@ export class DefaultConfigProvider implements ConfigProvider {
             useWorkspaceRoot: this.vscodeConfig.get("useWorkspaceRoot") ?? false,
             debugMode: this.vscodeConfig.get("debugMode") ?? false,
             progressDelay: this.vscodeConfig.get("progressDelay") ?? 0.3,
-            convertUrlToLink: this.vscodeConfig.get("convertUrlToLink") ?? false,
-            urlFetchTimeout: this.vscodeConfig.get("urlFetchTimeout") ?? 300
+            convertUrlToLink: this.vscodeConfig.get("convertUrlToLink") ?? true,
+            urlFetchTimeout: this.vscodeConfig.get("urlFetchTimeout") ?? 1500
         };
     }
 
@@ -63,6 +63,10 @@ export class DefaultConfigProvider implements ConfigProvider {
         // insertPattern validation
         if (!config.insertPattern || config.insertPattern.trim() === "") {
             errors.push(this.messageProvider.t('config.invalidInsertPattern'));
+        }
+
+        if (!Number.isFinite(config.urlFetchTimeout) || config.urlFetchTimeout <= 0) {
+            errors.push(this.messageProvider.t('config.invalidUrlFetchTimeout'));
         }
 
         return errors;
@@ -136,8 +140,8 @@ export class ConfigUtils {
             useWorkspaceRoot: false,
             debugMode: false,
             progressDelay: 0.3,
-            convertUrlToLink: false,
-            urlFetchTimeout: 300
+            convertUrlToLink: true,
+            urlFetchTimeout: 1500
         };
     }
 }

@@ -79,12 +79,13 @@
 				},
 				"vsc-webp-paster.convertUrlToLink": {
 					"type": "boolean",
-					"default": false,
+					"default": true,
 					"description": "%config.convertUrlToLink.description%"
 				},
 				"vsc-webp-paster.urlFetchTimeout": {
 					"type": "number",
-					"default": 300,
+					"default": 1500,
+					"minimum": 1,
 					"description": "%config.urlFetchTimeout.description%"
 				}
 			}
@@ -133,6 +134,7 @@
 		"typescript": "^6.0.3"
 	},
 	"dependencies": {
+		"htmlparser2": "^12.0.0",
 		"sharp": "^0.35.4"
 	},
 	"repository": {
@@ -148,7 +150,10 @@
 		"markdown",
 		"clipboard",
 		"convert",
-		"optimization"
+		"optimization",
+		"url",
+		"link",
+		"page-title"
 	],
 	"publisher": "hkrhd"
 }

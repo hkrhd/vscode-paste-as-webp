@@ -12,6 +12,7 @@
 - **貼り付けパターンのカスタマイズ** - htmlタグを使った50%縮小貼り付けなど
 - **画像名に日時を入れてユニークに**
 - **ワークスペースルートを基準にした画像保存**
+- **ページタイトル付きURL貼り付け** - コピーしたURLをMarkdownリンクに変換
 - **クロスプラットフォーム動作** - Windows、macOS、Linux，リモート(WSL、ssh、devcontainer)
 
 ## インストール
@@ -21,9 +22,11 @@
 
 ## 使い方
 
-1. 画像をクリップボードにコピー
+1. 画像またはURLをクリップボードにコピー
 2. VSCodeでMarkdownファイルを開く
 3. `Ctrl+V`（MacではCmd+V）を押す
+
+`https://code.visualstudio.com/` のようなURLは `[Visual Studio Code](<https://code.visualstudio.com/>)` として貼り付けます．
 
 **その他の方法:**
 
@@ -40,9 +43,13 @@
   "vsc-webp-paster.namingConvention": "image-${timestamp}",
   "vsc-webp-paster.insertPattern": "![${fileName}](${relativePath})",
   "vsc-webp-paster.useWorkspaceRoot": false,
-  "vsc-webp-paster.progressDelay": 0.3
+  "vsc-webp-paster.progressDelay": 0.3,
+  "vsc-webp-paster.convertUrlToLink": true,
+  "vsc-webp-paster.urlFetchTimeout": 1500
 }
 ```
+
+URL変換では静的HTMLのページタイトルを取得します．タイムアウトまでに取得できない場合は元のURLを貼り付けます．JavaScriptだけでタイトルを設定するページやログインが必要なページには対応しません．通信せずURLをそのまま貼り付ける場合は `convertUrlToLink` を `false` にします．
 
 ## 📋 要件
 

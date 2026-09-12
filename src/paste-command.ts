@@ -59,41 +59,11 @@ export class PasteCommand {
             }
         }
 
-        // 進行状況の遅延表示用関数
-        const runWithProgress = async (task: () => Promise<void>) => {
-            let isDone = false;
-            const progressPromise = (async () => {
-                await new Promise(resolve => setTimeout(resolve, config.progressDelay * 1000));
-                if (!isDone) {
-                    return vscode.window.withProgress(
-                        {
-                            location: vscode.ProgressLocation.Notification,
-                            title: this.messageProvider.t("pasteCommand.processing"),
-                            cancellable: false,
-                        },
-                        async () => {
-                            // タスクが終わるまで待機
-                            while (!isDone) {
-                                await new Promise(resolve => setTimeout(resolve, 50));
-                            }
-                        }
-                    );
-                }
-            })();
-
-            try {
-                await task();
-            } finally {
-                isDone = true;
-            }
-            await progressPromise;
-        };
-
         // プラットフォーム固有のクリップボード処理
         if (!imageBuffer && textData.length === 0) {
             logger.debug('PasteCommand', 'Attempting platform-specific clipboard access');
             // Obj: show progress for slow clipboard access on remote/WSL
-            await runWithProgress(async () => {
+            await this.runWithDelayedProgress(async () => {
                 imageBuffer = await this.deps.clipboardProvider.getImageBuffer();
                 logger.debug('PasteCommand', 'Platform clipboard result:', imageBuffer ? `buffer size: ${imageBuffer.length}` : 'null');
 
@@ -102,7 +72,7 @@ export class PasteCommand {
                 } else {
                     await this.pasteAsText(editor, textData, config);
                 }
-            });
+            }, this.messageProvider.t("pasteCommand.processing"), config.progressDelay);
             return;
         }
 
@@ -116,38 +86,67 @@ export class PasteCommand {
         logger.debug('PasteCommand', 'Processing as image, buffer size:', imageBuffer.length);
 
         // 画像として処理 (Base64経由などの場合)
-        await runWithProgress(async () => {
+        await this.runWithDelayedProgress(async () => {
             await this.pasteAsImage(editor, imageBuffer!, config, workspaceFolder || undefined);
-        });
+        }, this.messageProvider.t("pasteCommand.processing"), config.progressDelay);
     }
 
     private async pasteAsText(editor: vscode.TextEditor, text: string, config: ExtensionConfig): Promise<void> {
-        // Obj: Check if URL conversion is enabled and text is a valid URL
-        if (config.convertUrlToLink && UrlUtils.isValidUrl(text)) {
+        const candidate = text.trim();
+        if (config.convertUrlToLink && UrlUtils.isValidUrl(candidate)) {
             logger.debug('PasteCommand', 'URL detected, fetching title...');
 
-            let title: string | null = null;
-            await vscode.window.withProgress(
-                {
-                    location: vscode.ProgressLocation.Notification,
-                    title: this.messageProvider.t("pasteCommand.fetchingTitle"),
-                    cancellable: false,
-                },
-                async () => {
-                    title = await UrlUtils.fetchPageTitle(text, config.urlFetchTimeout);
-                }
+            const title = await this.runWithDelayedProgress(
+                () => UrlUtils.fetchPageTitle(candidate, config.urlFetchTimeout),
+                this.messageProvider.t("pasteCommand.fetchingTitle"),
+                config.progressDelay
             );
 
             if (title) {
                 logger.debug('PasteCommand', 'Title fetched:', title);
-                const markdownLink = `[${title}](${text})`;
-                await this.insertText(editor, markdownLink);
+                await this.insertText(editor, UrlUtils.formatMarkdownLink(title, candidate));
                 return;
             }
             logger.debug('PasteCommand', 'Failed to fetch title');
+            await this.insertText(editor, candidate);
+            return;
         }
 
         await this.insertText(editor, text);
+    }
+
+    private async runWithDelayedProgress<T>(
+        task: () => Promise<T>,
+        title: string,
+        delaySeconds: number
+    ): Promise<T> {
+        const taskPromise = task();
+        const shouldShowProgress = await Promise.race([
+            taskPromise.then(
+                () => false,
+                () => false
+            ),
+            new Promise<true>((resolve) => setTimeout(() => resolve(true), delaySeconds * 1000)),
+        ]);
+
+        if (shouldShowProgress) {
+            await vscode.window.withProgress(
+                {
+                    location: vscode.ProgressLocation.Notification,
+                    title,
+                    cancellable: false,
+                },
+                async () => {
+                    try {
+                        await taskPromise;
+                    } catch {
+                        // The original error is rethrown below.
+                    }
+                }
+            );
+        }
+
+        return await taskPromise;
     }
 
     private async insertText(editor: vscode.TextEditor, text: string): Promise<void> {
@@ -160,7 +159,7 @@ export class PasteCommand {
     private async pasteAsImage(
         editor: vscode.TextEditor,
         imageBuffer: Buffer,
-        config: any,
+        config: ExtensionConfig,
         workspaceFolder?: vscode.WorkspaceFolder
     ): Promise<void> {
         const mdFileUri = editor.document.uri;

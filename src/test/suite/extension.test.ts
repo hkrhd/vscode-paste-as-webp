@@ -1,5 +1,7 @@
 import * as assert from "assert";
 import { readFile } from "node:fs/promises";
+import { createServer, Server } from "node:http";
+import { AddressInfo } from "node:net";
 import * as path from "path";
 import * as vscode from "vscode";
 
@@ -11,6 +13,8 @@ const BASE64_PNG_DATA_URL = [
     "data:image/png;base64,",
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAADUlEQVQImWP4z8DwHwAFAAH/q842iQAAAABJRU5ErkJggg==",
 ].join("");
+let titleServer: Server;
+let titleServerBaseUrl: string;
 
 function getNonBuiltinExtensions(): vscode.Extension<unknown>[] {
     return vscode.extensions.all
@@ -80,10 +84,78 @@ async function configureExtension(): Promise<void> {
     await config.update("namingConvention", "e2e-image", vscode.ConfigurationTarget.Global);
     await config.update("insertPattern", "![${fileName}](${relativePath})", vscode.ConfigurationTarget.Global);
     await config.update("useWorkspaceRoot", false, vscode.ConfigurationTarget.Global);
-    await config.update("progressDelay", 0, vscode.ConfigurationTarget.Global);
+    await config.update("progressDelay", 0.3, vscode.ConfigurationTarget.Global);
+    await config.update("convertUrlToLink", true, vscode.ConfigurationTarget.Global);
+    await config.update("urlFetchTimeout", 1500, vscode.ConfigurationTarget.Global);
+}
+
+async function startTitleServer(): Promise<void> {
+    titleServer = createServer((request, response) => {
+        response.setHeader("Content-Type", "text/html; charset=utf-8");
+
+        if (request.url === "/title") {
+            response.end("<!doctype html><title> Example &amp; Docs [2026] </title><p>Body</p>");
+            return;
+        }
+
+        if (request.url === "/delayed") {
+            const timer = setTimeout(() => {
+                response.end("<!doctype html><title>Delayed Title</title>");
+            }, 450);
+            response.on("close", () => clearTimeout(timer));
+            return;
+        }
+
+        if (request.url === "/stream") {
+            response.write("<!doctype html><head><title>Streaming Title</title></head><body>");
+            const timer = setTimeout(() => response.end("late body</body>"), 5000);
+            response.on("close", () => clearTimeout(timer));
+            return;
+        }
+
+        if (request.url === "/missing") {
+            response.end("<!doctype html><p>No title</p>");
+            return;
+        }
+
+        if (request.url === "/slow") {
+            const timer = setTimeout(() => {
+                response.end("<!doctype html><title>Too Late</title>");
+            }, 3000);
+            response.on("close", () => clearTimeout(timer));
+            return;
+        }
+
+        response.statusCode = 500;
+        response.end("<!doctype html><title>Error page</title>");
+    });
+
+    await new Promise<void>((resolve, reject) => {
+        titleServer.once("error", reject);
+        titleServer.listen(0, "127.0.0.1", () => {
+            titleServer.off("error", reject);
+            const address = titleServer.address() as AddressInfo;
+            titleServerBaseUrl = `http://127.0.0.1:${address.port}`;
+            resolve();
+        });
+    });
+}
+
+async function pasteTextIntoScratch(text: string): Promise<string> {
+    const { document, scratchDir } = await openScratchMarkdown();
+
+    try {
+        await vscode.env.clipboard.writeText(text);
+        await vscode.commands.executeCommand(COMMAND_ID);
+        await document.save();
+        return document.getText();
+    } finally {
+        await cleanupScratchDir(scratchDir, document.uri);
+    }
 }
 
 suiteSetup(async () => {
+    await startTitleServer();
     await configureExtension();
 
     console.log("Non-builtin extensions visible to the test host:");
@@ -92,6 +164,13 @@ suiteSetup(async () => {
             `- ${visibleExtension.id}@${visibleExtension.packageJSON.version} path=${visibleExtension.extensionPath}`
         );
     }
+});
+
+suiteTeardown(async () => {
+    titleServer.closeAllConnections();
+    await new Promise<void>((resolve, reject) => {
+        titleServer.close((error) => error ? reject(error) : resolve());
+    });
 });
 
 suite("Extension Test Suite", () => {
@@ -165,6 +244,42 @@ suite("Extension Test Suite", () => {
         } finally {
             await cleanupScratchDir(scratchDir, document.uri);
         }
+    });
+
+    test("pastes a single URL with its HTML title as a Markdown link", async () => {
+        const url = `${titleServerBaseUrl}/title`;
+        const markdown = await pasteTextIntoScratch(`\n  ${url}\t`);
+
+        assert.strictEqual(markdown, `[Example & Docs \\[2026\\]](<${url}>)`);
+    });
+
+    test("fetches a title that arrives after the progress delay but before the timeout", async () => {
+        const url = `${titleServerBaseUrl}/delayed`;
+
+        assert.strictEqual(await pasteTextIntoScratch(url), `[Delayed Title](<${url}>)`);
+    });
+
+    test("stops reading the response as soon as the closing title tag arrives", async () => {
+        const url = `${titleServerBaseUrl}/stream`;
+        const startedAt = Date.now();
+        const markdown = await pasteTextIntoScratch(url);
+        const elapsedMs = Date.now() - startedAt;
+
+        assert.strictEqual(markdown, `[Streaming Title](<${url}>)`);
+        assert.ok(elapsedMs < 1200, `Paste should finish before the timeout, actual: ${elapsedMs}ms`);
+    });
+
+    test("pastes the original URL when a page title cannot be fetched", async () => {
+        for (const pathName of ["/missing", "/error", "/slow"]) {
+            const url = `${titleServerBaseUrl}${pathName}`;
+            assert.strictEqual(await pasteTextIntoScratch(` ${url}\n`), url);
+        }
+    });
+
+    test("does not convert a URL contained in ordinary text", async () => {
+        const text = `See ${titleServerBaseUrl}/title for details.`;
+
+        assert.strictEqual(await pasteTextIntoScratch(text), text);
     });
 
     test("converts base64 clipboard data into a webp file and markdown image link", async () => {
