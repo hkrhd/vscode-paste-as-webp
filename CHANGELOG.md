@@ -1,3 +1,10 @@
+## [0.6.6](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.6.5...v0.6.6) (2026-09-12)
+
+
+### Bug Fixes
+
+* 依存関係とE2E検証環境を更新 ([c4187ce](https://github.com/hkrhd/vscode-paste-as-webp/commit/c4187ce463e85a434e87416b0c1c936b9fff0092))
+
 ## [0.6.5](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.6.4...v0.6.5) (2026-05-16)
 
 
