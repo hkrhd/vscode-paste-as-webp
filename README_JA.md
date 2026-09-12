@@ -70,6 +70,7 @@ npm ci
 npm run compile
 npm test
 npm run test:e2e:code
+npm run test:e2e:live
 npm run test:perf:e2e
 npm run package:vsix
 ```
@@ -78,9 +79,12 @@ npm run package:vsix
 
 - `npm test`: CI と同じ Extension Host E2E
 - `npm run test:e2e:code`: `code` CLI でインストール済み VS Code を使うローカル専用 E2E
+- `npm run test:e2e:live`: `https://example.com/` を使う任意の実サイト E2E．`--` の後ろに別のURLを指定可能
 - `npm run test:perf:e2e`: activate 時間とメモリ差分を出力するローカル専用 perf E2E
 
 CI では Extension Host E2E を最小対応 VS Code と最新安定版の両方で実行します。ローカルでダウンロード版を指定する場合は `VSCODE_TEST_VERSION` を設定します（例: `VSCODE_TEST_VERSION=1.118.0 npm test`）。
+
+実サイト E2E は再試行せず1回だけアクセスし，CI では実行しません．別サイトを確認する場合は `npm run test:e2e:live -- https://ejje.weblio.jp/content/test` のように実行します．
 
 ## リリース
 

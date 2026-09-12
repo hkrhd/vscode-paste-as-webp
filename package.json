@@ -103,6 +103,7 @@
 		"pretest": "npm run compile-tests && npm run compile",
 		"test": "node ./out/test/runTest.js",
 		"test:e2e:code": "npm run pretest && node ./scripts/run-code-tests.mjs",
+		"test:e2e:live": "npm run pretest && node ./scripts/run-live-url-test.mjs",
 		"test:perf:e2e": "npm run pretest && node ./out/test/runPerfTest.js",
 		"package:vsix": "npm run package && vsce package --out vsc-webp-paster.vsix",
 		"check-types": "tsc --noEmit",

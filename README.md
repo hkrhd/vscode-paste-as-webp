@@ -73,6 +73,7 @@ npm ci
 npm run compile
 npm test
 npm run test:e2e:code
+npm run test:e2e:live
 npm run test:perf:e2e
 npm run package:vsix
 ```
@@ -81,9 +82,12 @@ Local test commands:
 
 - `npm test`: CI-compatible Extension Host E2E
 - `npm run test:e2e:code`: local-only E2E using your installed VS Code via `code` CLI
+- `npm run test:e2e:live`: optional live URL E2E using `https://example.com/`; pass another URL after `--` to change the target
 - `npm run test:perf:e2e`: local-only performance E2E that prints activation and memory metrics
 
 CI runs the Extension Host E2E suite against both the minimum supported VS Code version and the latest stable version. To select a downloaded VS Code version locally, set `VSCODE_TEST_VERSION` (for example, `VSCODE_TEST_VERSION=1.118.0 npm test`).
+
+The live URL E2E makes one request without retries and is not run in CI. For example, run `npm run test:e2e:live -- https://ejje.weblio.jp/content/test` to check another site.
 
 ## Release
 

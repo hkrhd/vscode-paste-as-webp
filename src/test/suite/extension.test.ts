@@ -9,6 +9,7 @@ const EXTENSION_ID = "hkrhd.vsc-webp-paster";
 const COMMAND_ID = "vsc-webp-paster.pasteAsWebpInMd";
 const REPO_ROOT = path.resolve(__dirname, "../../..");
 const DIST_ENTRY = path.resolve(REPO_ROOT, "dist/extension.js");
+const LIVE_URL = process.env.VSC_WEBP_LIVE_TEST_URL;
 const BASE64_PNG_DATA_URL = [
     "data:image/png;base64,",
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAADUlEQVQImWP4z8DwHwAFAAH/q842iQAAAABJRU5ErkJggg==",
@@ -281,6 +282,20 @@ suite("Extension Test Suite", () => {
 
         assert.strictEqual(await pasteTextIntoScratch(text), text);
     });
+
+    if (LIVE_URL) {
+        test("pastes a live website URL with its page title", async () => {
+            const normalizedUrl = new URL(LIVE_URL).href;
+            const markdown = await pasteTextIntoScratch(normalizedUrl);
+
+            assert.ok(markdown.startsWith("["), "Live page title should be used as the link label");
+            assert.ok(
+                markdown.endsWith(`](<${normalizedUrl}>)`),
+                "Markdown should link to the live URL"
+            );
+            assert.notStrictEqual(markdown, normalizedUrl, "Live URL should not fall back to plain text");
+        });
+    }
 
     test("converts base64 clipboard data into a webp file and markdown image link", async () => {
         const { document, scratchDir } = await openScratchMarkdown();
