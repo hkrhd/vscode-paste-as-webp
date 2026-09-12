@@ -3,30 +3,27 @@
 [English README](README.md)
 
 クリップボード画像をWebP形式に変換し, Markdownファイルに直接貼り付けるVSCode拡張機能です。
+（サブ機能として中身がURLの場合は，タイトル補完してペースト）
 
 ![image-20251109T003621.webp](img/image-20251109T003621.webp)
 
 ## 目的,機能
 
-- **ファイルサイズ削減** - PNGより小さく．ロスレスも対応
+- **ファイルサイズ削減** - PNGより小さく．ロスレス対応
 - **貼り付けパターンのカスタマイズ** - htmlタグを使った50%縮小貼り付けなど
 - **画像名に日時を入れてユニークに**
-- **ワークスペースルートを基準にした画像保存**
-- **ページタイトル付きURL貼り付け** - コピーしたURLをMarkdownリンクに変換
 - **クロスプラットフォーム動作** - Windows、macOS、Linux，リモート(WSL、ssh、devcontainer)
+- **URLタイトル補完**
 
 ## インストール
 
-1. VSCode Marketplaceからインストール
-2. 追加セットアップ不要
+VSCode Marketplaceからインストール（追加セットアップ不要）
 
 ## 使い方
 
 1. 画像またはURLをクリップボードにコピー
 2. VSCodeでMarkdownファイルを開く
 3. `Ctrl+V`（MacではCmd+V）を押す
-
-`https://code.visualstudio.com/` のようなURLは `[Visual Studio Code](<https://code.visualstudio.com/>)` として貼り付けます．
 
 **その他の方法:**
 
@@ -49,7 +46,7 @@
 }
 ```
 
-URL変換では静的HTMLのページタイトルを取得します．タイムアウトまでに取得できない場合は元のURLを貼り付けます．JavaScriptだけでタイトルを設定するページやログインが必要なページには対応しません．通信せずURLをそのまま貼り付ける場合は `convertUrlToLink` を `false` にします．
+URL変換では静的HTMLのページタイトルを取得します．1sタイムアウトまでに取得できない場合は元のURLを貼り付けます．通信せずURLをそのまま貼り付ける場合は `convertUrlToLink` を `false` にします．
 
 ## 📋 要件
 
@@ -59,37 +56,9 @@ URL変換では静的HTMLのページタイトルを取得します．タイム�
 **クリップボード取得方法:**
 
 - **Windows**: PowerShell (.NET System.Windows.Forms.Clipboard)
-- **macOS**: AppleScript (osascript)
+- **MacOS**: AppleScript (osascript)
 - **Linux**: xclip (X11) または wl-paste (Wayland) - インストール必要
 - **WSL / SSH**: 可能なら Windows 側 PowerShell を優先し, それ以外はクライアント側 OS の方式を使う
-
-## 開発
-
-```bash
-npm ci
-npm run compile
-npm test
-npm run test:e2e:code
-npm run test:e2e:live
-npm run test:perf:e2e
-npm run package:vsix
-```
-
-ローカルテスト:
-
-- `npm test`: CI と同じ Extension Host E2E
-- `npm run test:e2e:code`: `code` CLI でインストール済み VS Code を使うローカル専用 E2E
-- `npm run test:e2e:live`: `https://example.com/` を使う任意の実サイト E2E．`--` の後ろに別のURLを指定可能
-- `npm run test:perf:e2e`: activate 時間とメモリ差分を出力するローカル専用 perf E2E
-
-CI では Extension Host E2E を最小対応 VS Code と最新安定版の両方で実行します。ローカルでダウンロード版を指定する場合は `VSCODE_TEST_VERSION` を設定します（例: `VSCODE_TEST_VERSION=1.118.0 npm test`）。
-
-実サイト E2E は再試行せず1回だけアクセスし，CI では実行しません．別サイトを確認する場合は `npm run test:e2e:live -- https://ejje.weblio.jp/content/test` のように実行します．
-
-## リリース
-
-Marketplace 公開は `semantic-release` を起点に自動化します。
-`main` で GitHub Release を作成し、その release workflow が 4 ターゲットを VS Code Marketplace へ publish します。
 
 ## 📝 ライセンス
 
