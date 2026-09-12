@@ -1,3 +1,10 @@
+# [0.7.0](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.6.6...v0.7.0) (2026-09-12)
+
+
+### Features
+
+* URLをタイトル付きMarkdownリンクとして貼り付け ([8f6f997](https://github.com/hkrhd/vscode-paste-as-webp/commit/8f6f997868ed05eb90efbb0c773e8f46e0d3de39))
+
 ## [0.6.6](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.6.5...v0.6.6) (2026-09-12)
 
 
