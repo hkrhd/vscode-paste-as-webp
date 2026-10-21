@@ -1,3 +1,10 @@
+## [0.7.1](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.7.0...v0.7.1) (2026-10-21)
+
+
+### Bug Fixes
+
+* リモート保存先の画像名重複を正しく回避する ([a34ac61](https://github.com/hkrhd/vscode-paste-as-webp/commit/a34ac61e387dd0a977295a97e8059477af649e60)), closes [#38](https://github.com/hkrhd/vscode-paste-as-webp/issues/38)
+
 # [0.7.0](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.6.6...v0.7.0) (2026-09-12)
 
 
