@@ -2,10 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { buildCompatibilityReport } from "./monitor-vscode-compatibility.mjs";
 
-// 実際に確認したベースバージョンを含む、通知判断用の取得結果。
+// 公式配布から確認したベースバージョンを使う、通知判断用の取得結果。
 const editors = [
     { name: "VS Code", baseVersion: "1.143.1" },
-    { name: "Cursor", baseVersion: "1.110.0" },
+    { name: "Cursor", baseVersion: "1.128.0" },
     { name: "Windsurf", baseVersion: "1.126.0" },
     { name: "Antigravity IDE", baseVersion: "1.107.0" },
 ];

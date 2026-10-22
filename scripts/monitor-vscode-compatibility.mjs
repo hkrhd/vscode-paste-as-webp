@@ -75,7 +75,7 @@ async function download(url, destination) {
     return response.url;
 }
 
-async function readArchiveMetadata(archivePath, deb, directory) {
+async function readArchiveMetadata(archivePath, deb, directory, metadataFile) {
     let tarPath = archivePath;
     if (deb) {
         const { stdout } = await execFile("ar", ["t", archivePath], commandOptions);
@@ -92,7 +92,7 @@ async function readArchiveMetadata(archivePath, deb, directory) {
         await Promise.all([pipeline(child.stdout, createWriteStream(tarPath)), completed]);
     }
     const { stdout: listing } = await execFile("tar", ["-tf", tarPath], commandOptions);
-    const paths = listing.split(/\r?\n/u).filter(path => path.endsWith("/resources/app/package.json"));
+    const paths = listing.split(/\r?\n/u).filter(path => path.endsWith(`/resources/app/${metadataFile}`));
     if (paths.length !== 1) throw new Error("配布物内のVS Codeメタデータを特定できません。");
     const { stdout } = await execFile("tar", ["-xOf", tarPath, paths[0]], commandOptions);
     return JSON.parse(stdout);
@@ -111,9 +111,9 @@ async function collectEditors(directory) {
             if (!links.length) throw new Error("公式ページにLinux x64安定版debのリンクがありません。");
             const archive = join(directory, "cursor.deb");
             const resolvedUrl = await download(links[0], archive);
-            const data = await readArchiveMetadata(archive, true, directory);
-            const productVersion = /\/cursor_(\d+\.\d+\.\d+)_amd64\.deb$/u.exec(new URL(resolvedUrl).pathname)?.[1];
-            return { name: "Cursor", baseVersion: requireVersion(data.version, "Cursor"), productVersion: requireVersion(productVersion, "Cursor製品版"), source: resolvedUrl };
+            const data = await readArchiveMetadata(archive, true, directory, "product.json");
+            if (data.nameShort !== "Cursor" || data.quality !== "stable") throw new Error("配布物がCursorの安定版ではありません。");
+            return { name: "Cursor", baseVersion: requireVersion(data.vscodeVersion, "Cursor"), productVersion: requireVersion(data.version, "Cursor製品版"), source: resolvedUrl };
         },
         async () => {
             const data = await fetchDocument(sources.windsurf, "json");
@@ -125,7 +125,7 @@ async function collectEditors(directory) {
             if (links.length !== 1) throw new Error("Antigravity IDEのLinux x64安定版を一意に特定できません。");
             const archive = join(directory, "antigravity.tar.gz");
             const resolvedUrl = await download(links[0], archive);
-            const data = await readArchiveMetadata(archive, false, directory);
+            const data = await readArchiveMetadata(archive, false, directory, "package.json");
             if (data.name !== "Antigravity IDE") throw new Error("配布物がAntigravity IDEではありません。");
             const productVersion = /\/stable\/(\d+\.\d+\.\d+)-/u.exec(links[0])?.[1];
             return { name: "Antigravity IDE", baseVersion: requireVersion(data.version, "Antigravity IDE"), productVersion: requireVersion(productVersion, "Antigravity IDE製品版"), source: resolvedUrl };
