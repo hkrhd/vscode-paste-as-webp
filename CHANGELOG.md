@@ -1,3 +1,10 @@
+## [0.7.2](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.7.1...v0.7.2) (2026-10-22)
+
+
+### Bug Fixes
+
+* Open VSX のインストール案内を追加 ([5a83772](https://github.com/hkrhd/vscode-paste-as-webp/commit/5a83772bd7d726a6cab86916ec6a40419389d0c0))
+
 ## [0.7.1](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.7.0...v0.7.1) (2026-10-21)
 
 
