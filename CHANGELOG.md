@@ -1,3 +1,10 @@
+## [0.7.3](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.7.2...v0.7.3) (2026-10-22)
+
+
+### Bug Fixes
+
+* VS Codeの最小対応バージョンを1.100.0に引き下げる ([2e0d372](https://github.com/hkrhd/vscode-paste-as-webp/commit/2e0d372d0190d3441d39defdc28b3a1500115a7c))
+
 ## [0.7.2](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.7.1...v0.7.2) (2026-10-22)
 
 
