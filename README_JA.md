@@ -50,7 +50,7 @@ URL変換では静的HTMLのページタイトルを取得します．1sタイ�
 
 ## 📋 要件
 
-- VSCode 1.118.0以上
+- VSCode 1.100.0以上（または同バージョンの拡張APIに対応するVSCode系エディタ）
 - darwin-arm64, win32-x64, linux-x64, linux-arm64
 
 **クリップボード取得方法:**

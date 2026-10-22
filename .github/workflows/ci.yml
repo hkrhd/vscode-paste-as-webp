@@ -1,6 +1,7 @@
 name: CI
 
 on:
+  workflow_dispatch:
   pull_request:
   push:
     branches:
@@ -38,7 +39,7 @@ jobs:
     strategy:
       matrix:
         vscode-version:
-          - "1.118.0"
+          - "1.100.0"
           - stable
 
     steps:

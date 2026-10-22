@@ -50,7 +50,7 @@ URL conversion fetches the static HTML page title. If the title cannot be fetche
 
 ## 📋 Requirements
 
-- VSCode 1.118.0 or higher
+- VSCode 1.100.0 or higher (or a VS Code-based editor supporting this extension API version)
 - darwin-arm64, win32-x64, linux-x64, linux-arm64
 
 **Clipboard Access Methods:**

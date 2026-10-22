@@ -4,3 +4,6 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    ignore:
+      # 最小対応バージョンのAPIで型チェックするため、自動更新しない。
+      - dependency-name: "@types/vscode"
