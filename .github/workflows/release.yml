@@ -102,6 +102,6 @@ jobs:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
         run: npm exec -- vsce publish --packagePath vsc-webp-paster-${{ matrix.target }}.vsix
 
-      - name: Publish to Open VSX
+      - name: Publish to Open VSX with Trusted Publishing
         if: ${{ !cancelled() && steps.package.outcome == 'success' && inputs.registry != 'marketplace' }}
         run: npx --yes ovsx@1.3.0 publish vsc-webp-paster-${{ matrix.target }}.vsix --trusted-publishing
