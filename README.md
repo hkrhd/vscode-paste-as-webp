@@ -17,7 +17,7 @@ VSCode extension that converts clipboard images to WebP format and pastes them d
 
 ## Installation
 
-Install from the VSCode Marketplace (no additional setup required)
+Install from [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=hkrhd.vsc-webp-paster) or [Open VSX Registry](https://open-vsx.org/extension/hkrhd/vsc-webp-paster). No additional setup is required.
 
 ## Usage
 

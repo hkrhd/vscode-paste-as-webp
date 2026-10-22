@@ -17,7 +17,7 @@
 
 ## インストール
 
-VSCode Marketplaceからインストール（追加セットアップ不要）
+[Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=hkrhd.vsc-webp-paster) または [Open VSX Registry](https://open-vsx.org/extension/hkrhd/vsc-webp-paster) からインストールできます（追加セットアップ不要）。
 
 ## 使い方
 
