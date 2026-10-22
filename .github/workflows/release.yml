@@ -60,6 +60,9 @@ jobs:
   build-and-publish:
     if: ${{ github.event_name != 'push' || contains(github.event.head_commit.message, '[publish-current-version]') }}
     needs: validate
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       matrix:
         include:
@@ -101,6 +104,4 @@ jobs:
 
       - name: Publish to Open VSX
         if: ${{ !cancelled() && steps.package.outcome == 'success' && inputs.registry != 'marketplace' }}
-        env:
-          OVSX_PAT: ${{ secrets.OVSX_PAT }}
-        run: npx --yes ovsx@1.3.0 publish vsc-webp-paster-${{ matrix.target }}.vsix
+        run: npx --yes ovsx@1.3.0 publish vsc-webp-paster-${{ matrix.target }}.vsix --trusted-publishing
