@@ -186,7 +186,7 @@ async function main() {
             } else {
                 const bodyPath = join(directory, "issue.md");
                 await writeFile(bodyPath, body, "utf8");
-                const { stdout: issueUrl } = await execFile("gh", ["issue", "create", "--repo", repository, "--title", `VS Code API ${report.candidate} への引き上げ候補`, "--body-file", bodyPath], commandOptions);
+                const { stdout: issueUrl } = await execFile("gh", ["issue", "create", "--repo", repository, "--title", `VS Code API ${report.candidate} への引き上げ候補`, "--body-file", bodyPath, "--label", "自動チェック"], commandOptions);
                 summary += `判定: Issueを作成しました。${issueUrl.trim()}\n`;
             }
         } else {
