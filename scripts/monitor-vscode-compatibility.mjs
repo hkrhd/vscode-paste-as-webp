@@ -169,24 +169,24 @@ async function main() {
         const { stdout } = await execFile("gh", ["api", "--paginate", "--slurp", `repos/${repository}/issues?state=all&per_page=100`], commandOptions);
         const issues = JSON.parse(stdout).flat();
         const report = buildCompatibilityReport({ editors, versions: Object.keys(registry.versions), currentVersion, issues });
-        summary += `現在の設定: ${currentVersion}\n\n全製品の最低値: ${report.minimum}\n\n公開済みの更新候補: ${report.candidate}\n\n通知済みの最大候補: ${report.previous ?? "なし"}\n\n`;
+        summary += `現在の設定: ${currentVersion}\n\n全製品の最低値: ${report.minimum}\n\n更新可能なAPIバージョン: ${report.candidate}\n\n通知済みのバージョン: ${report.previous ?? "なし"}\n\n`;
         if (report.shouldNotify) {
             const runUrl = process.env.GITHUB_RUN_ID ? `https://github.com/${repository}/actions/runs/${process.env.GITHUB_RUN_ID}` : undefined;
             const body = [`<!-- vscode-api-monitor candidate=${report.candidate} -->`, "", "@hkrhd", "",
-                `4製品の最新安定版で、VS Code API ${report.candidate} への引き上げを検討できます。`, "",
+                `監視対象の4製品すべての最新安定版が、VS Code API ${report.candidate} 以上に対応しています。拡張の最小対応バージョンと型定義を更新できます。`, "",
                 `現在: \`engines.vscode: ${packageJson.engines.vscode}\` / \`@types/vscode: ${currentVersion}\``, "",
-                `候補: \`engines.vscode: ^${report.candidate}\` / \`@types/vscode: ${report.candidate}\``, "",
+                `更新先: \`engines.vscode: ^${report.candidate}\` / \`@types/vscode: ${report.candidate}\``, "",
                 editorTable(editors), "", `確認日時: ${new Date().toISOString()}`,
                 ...(runUrl ? ["", `[Actionsの実行結果](${runUrl})`] : []), "",
-                "Linux x64の公式安定版を基準にした更新候補です。設定の引き上げ前に拡張の動作を確認してください。", "",
+                "Linux x64の公式安定版を基準にしています。設定を更新する前に拡張の動作を確認してください。", "",
                 "設定・依存関係の自動更新は行っていません。"].join("\n");
             if (dryRun) {
-                summary += "判定: Issueを作成する候補があります（dry-runのため作成しません）。\n\n";
+                summary += "判定: 新しい更新情報があります（dry-runのためIssueを作成しません）。\n\n";
                 console.log(`作成予定のIssue本文:\n${body}`);
             } else {
                 const bodyPath = join(directory, "issue.md");
                 await writeFile(bodyPath, body, "utf8");
-                const { stdout: issueUrl } = await execFile("gh", ["issue", "create", "--repo", repository, "--title", `VS Code API ${report.candidate} への引き上げ候補`, "--body-file", bodyPath, "--label", "自動チェック"], commandOptions);
+                const { stdout: issueUrl } = await execFile("gh", ["issue", "create", "--repo", repository, "--title", `VS Code API ${report.candidate} に更新できます`, "--body-file", bodyPath, "--label", "自動チェック"], commandOptions);
                 summary += `判定: Issueを作成しました。${issueUrl.trim()}\n`;
             }
         } else {
