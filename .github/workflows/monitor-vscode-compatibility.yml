@@ -1,0 +1,50 @@
+name: Monitor VS Code API Compatibility
+
+on:
+  schedule:
+    # 毎日09:23 JST
+    - cron: '23 0 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Issueを作成せず、更新候補と通知判断を確認する'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: monitor-vscode-compatibility
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Verify configured API version
+        run: node scripts/check-vscode-types-version.mjs
+
+      - name: Test notification behavior
+        run: node --test scripts/monitor-vscode-compatibility.test.mjs
+
+      - name: Check editor compatibility
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+        run: |
+          args=()
+          if [ "$DRY_RUN" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          node scripts/monitor-vscode-compatibility.mjs "${args[@]}"

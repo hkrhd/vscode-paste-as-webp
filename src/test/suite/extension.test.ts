@@ -4,6 +4,7 @@ import { createServer, Server } from "node:http";
 import { AddressInfo } from "node:net";
 import * as path from "path";
 import * as vscode from "vscode";
+import { TestFileSystem } from "./test-file-system";
 
 const EXTENSION_ID = "hkrhd.vsc-webp-paster";
 const COMMAND_ID = "vsc-webp-paster.pasteAsWebpInMd";
@@ -45,7 +46,7 @@ async function waitForActivation(
     }
 }
 
-async function openScratchMarkdown(): Promise<{
+async function openScratchMarkdown(baseUri?: vscode.Uri): Promise<{
     document: vscode.TextDocument;
     editor: vscode.TextEditor;
     scratchDir: vscode.Uri;
@@ -54,7 +55,7 @@ async function openScratchMarkdown(): Promise<{
     assert.ok(workspaceFolder, "Workspace folder should be available for E2E tests");
 
     const scratchDir = vscode.Uri.joinPath(
-        workspaceFolder.uri,
+        baseUri ?? workspaceFolder.uri,
         ".tmp-e2e",
         `run-${Date.now()}-${Math.random().toString(16).slice(2)}`
     );
@@ -327,4 +328,51 @@ suite("Extension Test Suite", () => {
             await cleanupScratchDir(scratchDir, document.uri);
         }
     });
+
+    for (const scheme of ["file", "webp-e2e"]) {
+        test(`preserves existing images and inserts a unique image link on ${scheme} storage`, async () => {
+            const fileSystem = new TestFileSystem();
+            const registration = scheme === "file" ? undefined : vscode.workspace.registerFileSystemProvider(
+                scheme, fileSystem, { isCaseSensitive: true }
+            );
+            const baseUri = registration ? vscode.Uri.parse(`${scheme}://remote-host/workspace`) : undefined;
+            const { document, scratchDir } = await openScratchMarkdown(baseUri);
+
+            try {
+                const imageDir = vscode.Uri.joinPath(scratchDir, "e2e-images");
+                await vscode.workspace.fs.createDirectory(imageDir);
+                const existingImages = ["e2e-image.webp", "e2e-image-1.webp"];
+                for (const name of existingImages) {
+                    await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(imageDir, name), Buffer.from(name));
+                }
+
+                await vscode.env.clipboard.writeText(BASE64_PNG_DATA_URL);
+                if (registration) {
+                    fileSystem.statError = {
+                        uri: vscode.Uri.joinPath(imageDir, existingImages[0]),
+                        error: vscode.FileSystemError.NoPermissions(imageDir),
+                    };
+                    await vscode.commands.executeCommand(COMMAND_ID);
+                    fileSystem.statError = undefined;
+                    assert.strictEqual(document.getText(), "", "A failed existence check must stop the paste");
+                    assert.strictEqual((await vscode.workspace.fs.readDirectory(imageDir)).length, 2);
+                }
+                await vscode.commands.executeCommand(COMMAND_ID);
+                await document.save();
+
+                assert.strictEqual(document.getText(), "![e2e-image-2.webp](e2e-images/e2e-image-2.webp)");
+                for (const name of existingImages) {
+                    const content = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(imageDir, name));
+                    assert.strictEqual(Buffer.from(content).toString(), name, "Existing image must not be overwritten");
+                }
+                const image = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(imageDir, "e2e-image-2.webp"));
+                assert.strictEqual(Buffer.from(image.subarray(8, 12)).toString("ascii"), "WEBP");
+            } finally {
+                fileSystem.statError = undefined;
+                await cleanupScratchDir(scratchDir, document.uri);
+                registration?.dispose();
+                fileSystem.dispose();
+            }
+        });
+    }
 });

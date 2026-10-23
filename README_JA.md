@@ -17,7 +17,7 @@
 
 ## インストール
 
-VSCode Marketplaceからインストール（追加セットアップ不要）
+[Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=hkrhd.vsc-webp-paster) または [Open VSX Registry](https://open-vsx.org/extension/hkrhd/vsc-webp-paster) からインストールできます（追加セットアップ不要）。
 
 ## 使い方
 
@@ -50,7 +50,7 @@ URL変換では静的HTMLのページタイトルを取得します．1sタイ�
 
 ## 📋 要件
 
-- VSCode 1.118.0以上
+- VSCode 1.100.0以上（または同バージョンの拡張APIに対応するVSCode系エディタ）
 - darwin-arm64, win32-x64, linux-x64, linux-arm64
 
 **クリップボード取得方法:**

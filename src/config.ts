@@ -16,7 +16,6 @@ export interface ConfigProvider {
 }
 
 import * as vscode from 'vscode';
-import * as path from 'path';
 import { MessageProvider, VSCodeMessageProvider } from './message-provider';
 
 export class DefaultConfigProvider implements ConfigProvider {
@@ -109,21 +108,24 @@ export class ConfigUtils {
             .replace(/\$\{relativePath\}/g, relativePath);
     }
 
-    static async generateUniqueFileName(pattern: string, targetDir: string): Promise<string> {
+    static async generateUniqueFileName(pattern: string, targetDirUri: vscode.Uri): Promise<string> {
         // Obj: Generate unique filename by checking filesystem and incrementing seq if needed
         let seq: number | undefined = pattern.includes('${seq}') ? 1 : undefined;
         let fileName: string;
 
         while (true) {
             fileName = this.expandNamingConvention(pattern, seq) + ".webp";
-            const fullPath = path.join(targetDir, fileName);
-            const fileUri = vscode.Uri.file(fullPath);
+            const fileUri = vscode.Uri.joinPath(targetDirUri, fileName);
 
             // Obj: Use VSCode FileSystem API for remote environment support
             try {
                 await vscode.workspace.fs.stat(fileUri);
-            } catch {
-                return fileName;
+            } catch (error) {
+                if (error instanceof vscode.FileSystemError && error.code === 'FileNotFound') {
+                    return fileName;
+                }
+
+                throw error;
             }
 
             // Obj: Start seq from 1 on first collision, then increment
