@@ -1,3 +1,10 @@
+## [0.7.4](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.7.3...v0.7.4) (2026-10-22)
+
+
+### Bug Fixes
+
+* Open VSXのTrusted Publishingによる公開を有効化する ([eace5c8](https://github.com/hkrhd/vscode-paste-as-webp/commit/eace5c82406f29ff1ef24035cf3b4334ba148aaa))
+
 ## [0.7.3](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.7.2...v0.7.3) (2026-10-22)
 
 
