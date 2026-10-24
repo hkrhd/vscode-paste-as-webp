@@ -5,5 +5,8 @@ updates:
     schedule:
       interval: "weekly"
     ignore:
+      # メジャー更新は、Node.jsと対応VS Codeの実行環境を確認して手動で判断する。
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
       # 最小対応バージョンのAPIで型チェックするため、自動更新しない。
       - dependency-name: "@types/vscode"

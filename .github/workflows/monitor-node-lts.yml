@@ -1,0 +1,47 @@
+name: Monitor Node.js LTS
+
+on:
+  schedule:
+    # 毎日09:43 JST
+    - cron: '43 0 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Issueを作成せず、更新候補と通知判断を確認する'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: monitor-node-lts
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Test notification behavior
+        run: node --test scripts/monitor-node-lts.test.mjs
+
+      - name: Check latest Node.js LTS
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+        run: |
+          args=()
+          if [ "$DRY_RUN" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          node scripts/monitor-node-lts.mjs "${args[@]}"
