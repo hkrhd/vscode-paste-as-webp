@@ -60,6 +60,19 @@ URL変換では静的HTMLのページタイトルを取得します．1sタイ�
 - **Linux**: xclip (X11) または wl-paste (Wayland) - インストール必要
 - **WSL / SSH**: 可能なら Windows 側 PowerShell を優先し, それ以外はクライアント側 OS の方式を使う
 
+## 開発
+
+`.nvmrc` の Node.js を使い、`npm ci`、`npm test` を実行します。
+監視ビルドは VS Code の **Watch** タスクで起動します。ターミナルでは
+`npm run watch:esbuild` と `npm run watch:tsc` を別々に起動します。
+
+リリース用ツールは `tools/release` の独立した lockfile で管理し、
+リリース時だけ `npm ci --prefix tools/release` でインストールします。
+リポジトリのルートで `npm run release:dry-run` を実行すると、リリース内容を確認できます。
+**Semantic Release** workflow の手動実行でも拡張の検証とリリースの予行を行い、公開はしません。
+`main` への push 時は、従来どおりバージョン更新と公開を自動実行します。
+Dependabot の自動PRは、通常開発用・リリース用ともセキュリティ修正に限定します。
+
 ## 📝 ライセンス
 
 MIT License

@@ -7,15 +7,10 @@ node_modules/**
 !node_modules/sharp/**
 !node_modules/@img/**
 !node_modules/detect-libc/**
-!node_modules/color/**
-!node_modules/color-string/**
-!node_modules/color-convert/**
-!node_modules/color-name/**
-!node_modules/simple-swizzle/**
-!node_modules/is-arrayish/**
 !node_modules/semver/**
 src/**
 scripts/**
+tools/**
 .gitignore
 .coderabbit.yaml
 .nvmrc

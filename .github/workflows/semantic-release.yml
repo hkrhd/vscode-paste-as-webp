@@ -1,6 +1,7 @@
 name: Semantic Release
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -24,6 +25,9 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            tools/release/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -42,7 +46,17 @@ jobs:
       - name: Verify production bundle
         run: npm run package
 
+      - name: Install release dependencies
+        run: npm ci --prefix tools/release
+
+      - name: Verify release without publishing
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+        run: npm run release:dry-run -- --branches "$GITHUB_REF_NAME"
+
       - name: Semantic Release
+        if: github.event_name == 'push'
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: npm run semantic-release

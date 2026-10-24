@@ -4,9 +4,16 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    # 通常のバージョン更新PRを無効化し、セキュリティ更新PRだけにする。
+    open-pull-requests-limit: 0
     ignore:
       # メジャー更新は、Node.jsと対応VS Codeの実行環境を確認して手動で判断する。
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
       # 最小対応バージョンのAPIで型チェックするため、自動更新しない。
       - dependency-name: "@types/vscode"
+  - package-ecosystem: "npm"
+    directory: "/tools/release"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 0

@@ -60,6 +60,20 @@ URL conversion fetches the static HTML page title. If the title cannot be fetche
 - **Linux**: xclip (X11) or wl-paste (Wayland) - install required
 - **WSL / SSH**: Uses the client-side method above, preferring Windows PowerShell when available
 
+## Development
+
+Use the Node.js version in `.nvmrc`, then run `npm ci` and `npm test`.
+For watch mode, run the **Watch** task in VS Code. From a terminal, run
+`npm run watch:esbuild` and `npm run watch:tsc` in separate terminals.
+
+Release tools have a separate lockfile in `tools/release`. They are installed
+only for releases with `npm ci --prefix tools/release`. Run
+`npm run release:dry-run` from the repository root to preview a release.
+The **Semantic Release** workflow also supports manual runs, which validate
+the extension and preview the release without publishing. Pushes to `main`
+continue to update the version and publish automatically.
+Dependabot opens pull requests for security fixes only, for both dependency sets.
+
 ## 📝 License
 
 MIT License
