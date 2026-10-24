@@ -1,3 +1,10 @@
+## [0.7.5](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.7.4...v0.7.5) (2026-10-24)
+
+
+### Bug Fixes
+
+* 開発依存を削減しセキュリティ更新に限定 ([70d3383](https://github.com/hkrhd/vscode-paste-as-webp/commit/70d3383c74caaf1e160d65f28ecddfdd45364478))
+
 ## [0.7.4](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.7.3...v0.7.4) (2026-10-22)
 
 
