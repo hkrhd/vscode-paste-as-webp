@@ -13,6 +13,10 @@ on:
         description: Release tag to publish
         required: true
         type: string
+      pre_release_version:
+        description: Pre-release version (leave empty for a stable release)
+        required: false
+        type: string
       registry:
         description: Registry to publish to
         required: true
@@ -29,7 +33,7 @@ concurrency:
 
 jobs:
   validate:
-    if: ${{ github.event_name != 'push' || contains(github.event.head_commit.message, '[publish-current-version]') }}
+    if: ${{ !inputs.pre_release_version && (github.event_name != 'push' || contains(github.event.head_commit.message, '[publish-current-version]')) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -58,7 +62,7 @@ jobs:
         run: xvfb-run -a npm test
 
   build-and-publish:
-    if: ${{ github.event_name != 'push' || contains(github.event.head_commit.message, '[publish-current-version]') }}
+    if: ${{ !inputs.pre_release_version && (github.event_name != 'push' || contains(github.event.head_commit.message, '[publish-current-version]')) }}
     needs: validate
     permissions:
       contents: read
@@ -105,3 +109,28 @@ jobs:
       - name: Publish to Open VSX with Trusted Publishing
         if: ${{ !cancelled() && steps.package.outcome == 'success' && inputs.registry != 'marketplace' }}
         run: npx --yes ovsx@1.3.0 publish vsc-webp-paster-${{ matrix.target }}.vsix --trusted-publishing
+
+  publish-pre-release:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.pre_release_version != '' }}
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+      - run: npm ci
+      - name: Publish pre-release to Marketplace
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+          PRE_RELEASE_VERSION: ${{ inputs.pre_release_version }}
+        run: npm run publish:pre-release -- --version "$PRE_RELEASE_VERSION"
+        shell: bash

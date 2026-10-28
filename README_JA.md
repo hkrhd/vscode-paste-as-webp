@@ -68,6 +68,12 @@ Remote SSH では拡張を手元のUIホストで動かし、標準Paste APIで�
 リポジトリのルートで `npm run release:dry-run` を実行すると、リリース内容を確認できます。
 **Semantic Release** workflow の手動実行でも拡張の検証とリリースの予行を行い、公開はしません。
 `main` への push 時は、従来どおりバージョン更新と公開を自動実行します。
+VS Code Marketplace のプレリリースは、公開済みバージョンと重複しない
+`MAJOR.MINOR.PATCH` を指定して `npm run publish:pre-release -- --version 0.7.6` で公開します。
+事前確認は末尾に `--dry-run` を付けると、公開せず `dist/pre-release/` にVSIXを作成します。
+公開には `VSCE_PAT` または `vsce login` による認証が必要です。実行環境向けのパッケージを
+作成するため、対応する各OS・CPUで同じバージョンを実行してください。
+通常版でも同じバージョンは使えないため、次回の通常リリース番号と重複しないようにしてください。
 Dependabot の自動PRは、通常開発用・リリース用ともセキュリティ修正に限定します。
 
 ## 📝 ライセンス

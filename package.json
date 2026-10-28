@@ -104,6 +104,7 @@
 		"test:e2e:live": "npm run pretest && node ./scripts/run-live-url-test.mjs",
 		"test:perf:e2e": "npm run pretest && node ./out/test/runPerfTest.js",
 		"package:vsix": "npm run package && vsce package --out vsc-webp-paster.vsix",
+		"publish:pre-release": "node scripts/publish-pre-release.mjs",
 		"check-types": "tsc --noEmit",
 		"lint": "eslint src",
 		"check:vscode-types-version": "node ./scripts/check-vscode-types-version.mjs",

@@ -3,6 +3,7 @@
 out/**
 build
 build/**
+dist/pre-release/**
 node_modules/**
 !node_modules/sharp/**
 !node_modules/@img/**

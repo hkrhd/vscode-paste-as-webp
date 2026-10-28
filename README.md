@@ -68,6 +68,12 @@ only for releases with `npm ci --prefix tools/release`. Run
 The **Semantic Release** workflow also supports manual runs, which validate
 the extension and preview the release without publishing. Pushes to `main`
 continue to update the version and publish automatically.
+To publish a VS Code Marketplace pre-release, run
+`npm run publish:pre-release -- --version 0.7.6` with an unused `MAJOR.MINOR.PATCH` version.
+Add `--dry-run` to create a VSIX in `dist/pre-release/` without publishing.
+Publishing requires `VSCE_PAT` or `vsce login`. The package targets the current
+OS and CPU, so run it with the same version on each supported platform.
+Choose a version that will not collide with the next stable release.
 Dependabot opens pull requests for security fixes only, for both dependency sets.
 
 ## 📝 License
