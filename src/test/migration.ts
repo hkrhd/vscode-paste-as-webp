@@ -29,7 +29,7 @@ export async function runShortcutMigrationTests(executable: string, baseArgs: st
         // --extensionTestsPath makes VS Code use in-memory storage. Launch normally
         // so this scenario verifies the real profile survives a full app restart.
         await runDesktopTests(executable, [
-            ...baseArgs, "--disable-extensions", "--locale=en",
+            ...baseArgs, "--locale=en",
             `--user-data-dir=${user}`, `--extensions-dir=${path.join(root, "migration-extensions")}`,
             workspace, note,
         ], undefined, async (application, bridge) => {
@@ -37,6 +37,7 @@ export async function runShortcutMigrationTests(executable: string, baseArgs: st
             page.setDefaultTimeout(20000);
             const editor = page.locator('.monaco-editor[data-uri$="/note.md"]');
             await editor.waitFor();
+            await page.locator('[id="status.editor.mode"]').filter({ hasText: "Markdown" }).waitFor();
             const modifier = process.platform === "darwin" ? "Meta" : "Control";
             const notifications = () => page.locator(".notification-list-item-message").allTextContents();
             async function assertNoNotice(): Promise<void> {
@@ -58,7 +59,8 @@ export async function runShortcutMigrationTests(executable: string, baseArgs: st
                     const text = document.querySelector('.monaco-editor[data-uri$="/note.md"] .view-lines')?.textContent ?? "";
                     return (text.match(/\.webp\)/g) ?? []).length === count;
                 }, { count: imageCount }).catch(async error => {
-                    console.error("Paste UI state:", await editor.textContent(), await notifications());
+                    console.error("Paste UI state:", await editor.textContent(), await notifications(),
+                        await page.locator(".statusbar-item").allTextContents());
                     throw error;
                 });
                 await page.keyboard.press(`${modifier}+s`);
