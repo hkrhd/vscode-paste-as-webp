@@ -49,7 +49,7 @@ URL conversion fetches the static HTML page title. If the title cannot be fetche
 
 ## 📋 Requirements
 
-- VSCode 1.100.0 or higher (or a VS Code-based editor supporting this extension API version)
+- Antigravity IDE's VS Code 1.107.0 API baseline or later, including [Antigravity IDE](https://antigravity.google/download), VS Code 1.107.0+, and editors with a compatible API
 - darwin-arm64, win32-x64, linux-x64, linux-arm64
 
 In a Remote SSH workspace, the extension runs on the local UI host, receives image data through VS Code's standard paste API, converts it locally with `sharp`, and saves the WebP through VS Code's workspace file API on the remote host. The standard paste keybinding is handled by VS Code and this extension only provides paste edits for Markdown documents.

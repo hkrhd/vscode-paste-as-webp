@@ -50,7 +50,7 @@ URL変換では静的HTMLのページタイトルを取得します．既定1.5�
 
 ## 📋 要件
 
-- VSCode 1.100.0以上（または同バージョンの拡張APIに対応するVSCode系エディタ）
+- [Antigravity IDE](https://antigravity.google/download) が採用する VS Code 1.107.0 API 基準以上（VS Code 1.107.0 以上、および同等のAPIに対応するエディター）
 - darwin-arm64, win32-x64, linux-x64, linux-arm64
 
 Remote SSH では拡張を手元のUIホストで動かし、標準Paste APIで受け取った画像を `sharp` でローカル変換し、VS CodeのワークスペースファイルAPIでSSH先に保存します。標準貼り付けキーは VS Code が処理し、この拡張は Markdown ファイルにだけ貼り付け候補を提供します。WebP画像とタイトル付きリンクの優先順位には `editor.pasteAs.preferences` の設定が使われます。
