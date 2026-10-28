@@ -1,5 +1,5 @@
 import * as assert from "node:assert/strict";
-import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import * as path from "node:path";
 import sharp from "sharp";
 import { runDesktopTests } from "./desktop";
@@ -63,6 +63,22 @@ export async function runShortcutMigrationTests(executable: string, baseArgs: st
                         await page.locator(".statusbar-item").allTextContents());
                     throw error;
                 });
+                const deadline = Date.now() + 10000;
+                while (true) {
+                    try {
+                        const images = await readdir(path.join(workspace, "images"));
+                        const stats = await Promise.all(images.map(name => stat(path.join(workspace, "images", name))));
+                        if (images.length === imageCount && stats.every(file => file.size > 0)) {
+                            break;
+                        }
+                    } catch (error) {
+                        if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+                            throw error;
+                        }
+                    }
+                    assert.ok(Date.now() < deadline, "Pasted WebP files must finish saving");
+                    await page.waitForTimeout(50);
+                }
                 await page.keyboard.press(`${modifier}+s`);
                 await page.waitForFunction(() => !document.querySelector(".tab.active.dirty"));
                 const markdown = await readFile(note, "utf8");
@@ -94,6 +110,8 @@ export async function runShortcutMigrationTests(executable: string, baseArgs: st
             await editor.locator(".view-lines").filter({ hasText: "existing shortcut still works" }).waitFor();
             await assertNoNotice();
             await page.keyboard.press(`${modifier}+s`);
+            await page.waitForFunction(() => !document.querySelector(".tab.active.dirty"));
+            assert.ok((await readFile(note, "utf8")).includes("existing shortcut still works"));
             console.log(`  ✔ Repeated shortcut use pastes text without another notice${restarted ? " after restart" : ""}`);
         });
     }

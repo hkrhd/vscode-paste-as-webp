@@ -7,6 +7,7 @@ import { SshFixture } from "./ssh/podman";
 // The bridge operates only the isolated test window and its OS clipboard.
 export async function runDesktopTests(executablePath: string, args: string[], fixture?: SshFixture, scenario?: (application: ElectronApplication, bridge: string) => Promise<void>): Promise<void> {
     let application: ElectronApplication | undefined;
+    let launchedProcess: ReturnType<ElectronApplication["process"]> | undefined;
     const secret = randomUUID();
     const server = createServer(async (request, response) => {
         try {
@@ -57,10 +58,16 @@ export async function runDesktopTests(executablePath: string, args: string[], fi
             timeout: 120000,
         });
         const child = application.process();
+        launchedProcess = child;
         child.stdout?.pipe(process.stdout);
         child.stderr?.pipe(process.stderr);
         if (scenario) {
-            await scenario(application, bridge);
+            try {
+                await scenario(application, bridge);
+            } catch (error) {
+                console.error("Desktop scenario failed:", error);
+                throw error;
+            }
             return;
         }
         await new Promise<void>((resolve, reject) => {
@@ -79,7 +86,25 @@ export async function runDesktopTests(executablePath: string, args: string[], fi
             }
         });
     } finally {
-        await application?.close().catch(() => {});
-        await new Promise<void>(resolve => server.close(() => resolve()));
+        try {
+            if (application && launchedProcess) {
+                let closeTimedOut = false;
+                const running = launchedProcess;
+                const deadline = setTimeout(() => {
+                    closeTimedOut = true;
+                    running.kill("SIGKILL");
+                }, 30000);
+                try {
+                    await application.close().catch(() => {});
+                } finally {
+                    clearTimeout(deadline);
+                }
+                if (closeTimedOut) {
+                    throw new Error("VS Code test window did not close within 30 seconds");
+                }
+            }
+        } finally {
+            await new Promise<void>(resolve => server.close(() => resolve()));
+        }
     }
 }
