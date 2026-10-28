@@ -37,6 +37,7 @@ jobs:
     needs: validate
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         vscode-version:
           - "1.100.0"
