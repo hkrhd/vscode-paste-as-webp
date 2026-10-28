@@ -2,8 +2,7 @@
 
 [日本語README](README_JA.md)
 
-VSCode extension that converts clipboard images to WebP format and pastes them directly into Markdown files.
-(As a secondary feature, copied URLs are pasted with their page titles.)
+VS Code extension that converts pasted images to WebP in Markdown files. Copied URLs can also be pasted as Markdown links with their page titles.
 
 ![image-20251109T003621.webp](img/image-20251109T003621.webp)
 
@@ -12,7 +11,7 @@ VSCode extension that converts clipboard images to WebP format and pastes them d
 - **Reduce file sizes** - Smaller than PNG, with lossless compression support
 - **Customize paste patterns** - HTML tag insertion for 50% scaled images, etc.
 - **Unique image names with timestamps**
-- **Cross-platform** - Works on Windows, macOS, Linux, and remote environments (WSL, SSH, devcontainer)
+- **Cross-platform** - Uses VS Code's paste API and workspace file API, including Remote SSH workspaces
 - **Complete URL titles**
 
 ## Installation
@@ -46,23 +45,18 @@ See configuration descriptions for details
 }
 ```
 
-URL conversion fetches the static HTML page title. If the title cannot be fetched within the 1-second timeout, the original URL is pasted. Set `convertUrlToLink` to `false` to paste URLs without making a request.
+URL conversion fetches the static HTML page title. If the title cannot be fetched within the default 1.5-second timeout (configurable with `urlFetchTimeout`), the original URL is pasted. Set `convertUrlToLink` to `false` to paste URLs without making a request. The Markdown WebP and title-link edits are VS Code paste options; your `editor.pasteAs.preferences` setting determines their priority.
 
 ## 📋 Requirements
 
 - VSCode 1.100.0 or higher (or a VS Code-based editor supporting this extension API version)
 - darwin-arm64, win32-x64, linux-x64, linux-arm64
 
-**Clipboard Access Methods:**
-
-- **Windows**: PowerShell (.NET System.Windows.Forms.Clipboard)
-- **MacOS**: AppleScript (osascript)
-- **Linux**: xclip (X11) or wl-paste (Wayland) - install required
-- **WSL / SSH**: Uses the client-side method above, preferring Windows PowerShell when available
+In a Remote SSH workspace, the extension runs on the local UI host, receives image data through VS Code's standard paste API, converts it locally with `sharp`, and saves the WebP through VS Code's workspace file API on the remote host. The standard paste keybinding is handled by VS Code and this extension only provides paste edits for Markdown documents.
 
 ## Development
 
-Use the Node.js version in `.nvmrc`, then run `npm ci` and `npm test`.
+Use the Node.js version in `.nvmrc`, then run `npm ci` and `npm test`. The test command includes a real Remote SSH end-to-end test using an isolated Podman container. Install and configure Podman (including a Podman machine on macOS and Windows) and OpenSSH. The test captures its VS Code test window and uses that screenshot as clipboard image data. On Linux, provide a display server such as Xvfb.
 For watch mode, run the **Watch** task in VS Code. From a terminal, run
 `npm run watch:esbuild` and `npm run watch:tsc` in separate terminals.
 

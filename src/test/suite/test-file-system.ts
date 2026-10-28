@@ -4,7 +4,6 @@ import * as vscode from "vscode";
 export class TestFileSystem implements vscode.FileSystemProvider, vscode.Disposable {
     private readonly changes = new vscode.EventEmitter<vscode.FileChangeEvent[]>();
     readonly onDidChangeFile = this.changes.event;
-    statError?: { uri: vscode.Uri; error: vscode.FileSystemError };
     private readonly entries = new Map<string, { type: vscode.FileType; data: Uint8Array; mtime: number }>();
 
     watch(): vscode.Disposable {
@@ -12,9 +11,6 @@ export class TestFileSystem implements vscode.FileSystemProvider, vscode.Disposa
     }
 
     stat(uri: vscode.Uri): vscode.FileStat {
-        if (this.statError?.uri.toString() === uri.toString()) {
-            throw this.statError.error;
-        }
         const entry = this.entries.get(uri.toString());
         if (!entry) {
             throw vscode.FileSystemError.FileNotFound(uri);

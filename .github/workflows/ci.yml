@@ -55,6 +55,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Podman and OpenSSH client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y podman openssh-client
+
       - name: Run extension tests
         env:
           VSCODE_TEST_VERSION: ${{ matrix.vscode-version }}

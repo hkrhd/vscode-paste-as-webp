@@ -26,15 +26,8 @@
 		"commands": [
 			{
 				"command": "vsc-webp-paster.pasteAsWebpInMd",
-				"title": "Paste as WebP in MD"
-			}
-		],
-		"keybindings": [
-			{
-				"command": "vsc-webp-paster.pasteAsWebpInMd",
-				"key": "ctrl+v",
-				"mac": "cmd+v",
-				"when": "editorTextFocus && !notebookEditorFocused && editorLangId == 'markdown'"
+				"title": "Paste as WebP in MD",
+				"enablement": "editorLangId == markdown && !notebookEditorFocused"
 			}
 		],
 		"configuration": {
@@ -90,7 +83,13 @@
 				}
 			}
 		},
-		"l10n": "./l10n"
+		"l10n": "./l10n",
+		"configurationDefaults": {
+			"editor.pasteAs.preferences": [
+				"vsc-webp-paster.image.webp",
+				"vsc-webp-paster.link.title"
+			]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run package",
@@ -122,6 +121,7 @@
 		"esbuild": "^0.28.2",
 		"eslint": "^10.10.0",
 		"mocha": "^12.0.3",
+		"playwright": "^1.64.1",
 		"typescript": "^6.0.3"
 	},
 	"dependencies": {

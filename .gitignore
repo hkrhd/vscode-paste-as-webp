@@ -48,3 +48,6 @@ scratch
 
 test_doc
 .README.md
+
+# E2E scratch documents
+src/test/fixtures/workspace/.tmp-e2e/

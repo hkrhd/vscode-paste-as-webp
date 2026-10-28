@@ -1,6 +1,7 @@
 import * as assert from "assert";
 import * as path from "path";
 import * as vscode from "vscode";
+import { pasteAndWait } from "./paste";
 
 const EXTENSION_ID = "hkrhd.vsc-webp-paster";
 const COMMAND_ID = "vsc-webp-paster.pasteAsWebpInMd";
@@ -121,7 +122,7 @@ suite("Performance Test Suite", () => {
         try {
             await vscode.env.clipboard.writeText("plain clipboard text");
             await measureScenario("paste-plain-text", async () => {
-                await vscode.commands.executeCommand(COMMAND_ID);
+                await pasteAndWait(document, "editor.action.clipboardPasteAction");
                 await document.save();
             });
 
@@ -137,7 +138,7 @@ suite("Performance Test Suite", () => {
         try {
             await vscode.env.clipboard.writeText(BASE64_PNG_DATA_URL);
             await measureScenario("paste-base64-image", async () => {
-                await vscode.commands.executeCommand(COMMAND_ID);
+                await pasteAndWait(document, "editor.action.clipboardPasteAction");
                 await document.save();
             });
 

@@ -1,0 +1,7 @@
+FROM docker.io/library/ubuntu:24.04
+RUN apt-get update && apt-get install -y --no-install-recommends openssh-server ca-certificates curl tar gzip libstdc++6 && rm -rf /var/lib/apt/lists/* \
+    && useradd -m -s /bin/bash e2e && passwd -d e2e && mkdir -p /run/sshd /home/e2e/.ssh /home/e2e/workspace \
+    && chmod 700 /home/e2e/.ssh && chown -R e2e:e2e /home/e2e
+RUN printf '\nPasswordAuthentication no\nKbdInteractiveAuthentication no\nPermitRootLogin no\nAllowTcpForwarding yes\n' >> /etc/ssh/sshd_config
+EXPOSE 22
+CMD ["/usr/sbin/sshd", "-D", "-e"]

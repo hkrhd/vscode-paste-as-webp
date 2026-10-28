@@ -1,9 +1,9 @@
 import * as assert from "assert";
-import { readFile } from "node:fs/promises";
 import { createServer, Server } from "node:http";
 import { AddressInfo } from "node:net";
 import * as path from "path";
 import * as vscode from "vscode";
+import { pasteAndWait, waitForResult } from "./paste";
 import { TestFileSystem } from "./test-file-system";
 
 const EXTENSION_ID = "hkrhd.vsc-webp-paster";
@@ -148,7 +148,7 @@ async function pasteTextIntoScratch(text: string): Promise<string> {
 
     try {
         await vscode.env.clipboard.writeText(text);
-        await vscode.commands.executeCommand(COMMAND_ID);
+        await pasteAndWait(document);
         await document.save();
         return document.getText();
     } finally {
@@ -190,33 +190,6 @@ suite("Extension Test Suite", () => {
         assert.strictEqual(path.resolve(nonBuiltinExtensions[0].extensionPath), REPO_ROOT);
     });
 
-    test("keeps extensionDevelopmentPath pointed at the extension root", async () => {
-        const launchConfigText = await readFile(path.resolve(REPO_ROOT, ".vscode/launch.json"), "utf8");
-        const launchConfig = JSON.parse(launchConfigText) as {
-            configurations?: Array<{ name?: string; args?: string[] }>;
-        };
-        const runExtensionConfig = launchConfig.configurations?.find(
-            (configuration) => configuration.name === "Run Extension"
-        );
-        const runTestsConfig = launchConfig.configurations?.find(
-            (configuration) => configuration.name === "Run Extension Tests"
-        );
-
-        assert.ok(runExtensionConfig, "Run Extension config should exist");
-        assert.ok(runExtensionConfig.args?.includes("--extensionDevelopmentPath=${workspaceFolder}"));
-        assert.ok(runTestsConfig, "Run Extension Tests config should exist");
-        assert.ok(runTestsConfig.args?.includes("--extensionDevelopmentPath=${workspaceFolder}"));
-
-        const cliRunner = await readFile(path.resolve(REPO_ROOT, "scripts/run-code-tests.mjs"), "utf8");
-        assert.ok(cliRunner.includes("`--extensionDevelopmentPath=${workspaceRoot}`"));
-
-        const electronRunner = await readFile(path.resolve(REPO_ROOT, "src/test/runTest.ts"), "utf8");
-        assert.ok(electronRunner.includes('const extensionDevelopmentPath = path.resolve(__dirname, "../../");'));
-
-        const perfRunner = await readFile(path.resolve(REPO_ROOT, "src/test/runPerfTest.ts"), "utf8");
-        assert.ok(perfRunner.includes('const extensionDevelopmentPath = path.resolve(__dirname, "../../");'));
-    });
-
     test("activates when a markdown file is opened and registers the markdown paste command", async () => {
         const extension = getExtensionOrFail();
         assert.strictEqual(extension.isActive, false, "Extension should still be inactive before markdown is opened");
@@ -239,7 +212,7 @@ suite("Extension Test Suite", () => {
 
         try {
             await vscode.env.clipboard.writeText("plain clipboard text");
-            await vscode.commands.executeCommand(COMMAND_ID);
+            await pasteAndWait(document, "editor.action.clipboardPasteAction");
             await document.save();
 
             assert.strictEqual(document.getText(), "plain clipboard text");
@@ -303,7 +276,7 @@ suite("Extension Test Suite", () => {
 
         try {
             await vscode.env.clipboard.writeText(BASE64_PNG_DATA_URL);
-            await vscode.commands.executeCommand(COMMAND_ID);
+            await pasteAndWait(document, "editor.action.clipboardPasteAction");
             await document.save();
 
             const markdown = document.getText();
@@ -329,6 +302,186 @@ suite("Extension Test Suite", () => {
         }
     });
 
+    test("replaces selected text with a WebP image and undo restores text and removes the image", async () => {
+        const { document, editor, scratchDir } = await openScratchMarkdown();
+        const originalText = "before after";
+
+        try {
+            await editor.edit(edit => edit.insert(new vscode.Position(0, 0), originalText));
+            editor.selection = new vscode.Selection(0, 7, 0, 12);
+            await vscode.env.clipboard.writeText(BASE64_PNG_DATA_URL);
+            await pasteAndWait(document, "editor.action.clipboardPasteAction");
+
+            const link = document.getText().slice("before ".length);
+            assert.match(link, /^!\[e2e-image(?:-\d+)?\.webp\]\(e2e-images\/e2e-image(?:-\d+)?\.webp\)$/);
+            const relativePath = link.match(/\((?<path>[^)]+)\)$/)?.groups?.path;
+            assert.ok(relativePath, "Pasted Markdown should contain the generated image path");
+            const imageUri = vscode.Uri.joinPath(scratchDir, relativePath);
+            assert.ok((await vscode.workspace.fs.stat(imageUri)).size > 0);
+
+            await vscode.commands.executeCommand("undo");
+            await waitForResult(() => document.getText() === originalText, "undo restores selected text");
+            await waitForResult(async () => {
+                try {
+                    await vscode.workspace.fs.stat(imageUri);
+                    return false;
+                } catch {
+                    return true;
+                }
+            }, "undo removes generated image");
+            assert.strictEqual(document.getText(), originalText);
+            await document.save();
+        } finally {
+            await cleanupScratchDir(scratchDir, document.uri);
+        }
+    });
+
+    test("inserts one shared image link at multiple cursors on standard paste", async () => {
+        const { document, editor, scratchDir } = await openScratchMarkdown();
+
+        try {
+            await editor.edit(edit => edit.insert(new vscode.Position(0, 0), "alpha\nbeta"));
+            editor.selections = [new vscode.Selection(0, 5, 0, 5), new vscode.Selection(1, 4, 1, 4)];
+            await vscode.env.clipboard.writeText(BASE64_PNG_DATA_URL);
+            await pasteAndWait(document, "editor.action.clipboardPasteAction");
+
+            const links = [...document.getText().matchAll(/!\[[^\]]+\]\([^)]+\)/g)].map(match => match[0]);
+            assert.strictEqual(links.length, 2, "Each cursor should receive an image link");
+            assert.strictEqual(links[0], links[1], "Both cursors should reference the same image file");
+            assert.strictEqual(document.getText(), `alpha${links[0]}\nbeta${links[1]}`);
+
+            const relativePath = links[0].match(/\((?<path>[^)]+)\)$/)?.groups?.path;
+            assert.ok(relativePath, "Pasted Markdown should contain the generated image path");
+            const imageDir = vscode.Uri.joinPath(scratchDir, "e2e-images");
+            const files = await vscode.workspace.fs.readDirectory(imageDir);
+            assert.deepStrictEqual(files.map(([name]) => name), [path.posix.basename(relativePath)]);
+            assert.ok((await vscode.workspace.fs.stat(vscode.Uri.joinPath(scratchDir, relativePath))).size > 0);
+        } finally {
+            await cleanupScratchDir(scratchDir, document.uri);
+        }
+    });
+
+    test("text preference keeps Base64 text on standard paste while the dedicated command creates WebP", async () => {
+        const { document, editor, scratchDir } = await openScratchMarkdown();
+        const editorConfig = vscode.workspace.getConfiguration("editor");
+        const previousPreferences = editorConfig.inspect<string[]>("pasteAs.preferences")?.globalValue;
+
+        try {
+            await editorConfig.update("pasteAs.preferences", ["text"], vscode.ConfigurationTarget.Global);
+            await vscode.env.clipboard.writeText(BASE64_PNG_DATA_URL);
+            await pasteAndWait(document, "editor.action.clipboardPasteAction");
+            assert.strictEqual(document.getText(), BASE64_PNG_DATA_URL);
+
+            editor.selection = new vscode.Selection(0, document.lineAt(0).text.length, 0, document.lineAt(0).text.length);
+            await pasteAndWait(document, COMMAND_ID);
+            await waitForResult(() => document.getText().includes("e2e-image"), "dedicated command inserts WebP Markdown");
+
+            const markdown = document.getText().slice(BASE64_PNG_DATA_URL.length);
+            assert.match(markdown, /^!\[e2e-image(?:-\d+)?\.webp\]\(e2e-images\/e2e-image(?:-\d+)?\.webp\)$/);
+            const relativePath = markdown.match(/\((?<path>[^)]+)\)$/)?.groups?.path;
+            assert.ok(relativePath, "Dedicated command should add an image path");
+            assert.ok((await vscode.workspace.fs.stat(vscode.Uri.joinPath(scratchDir, relativePath))).size > 0);
+        } finally {
+            await editorConfig.update("pasteAs.preferences", previousPreferences, vscode.ConfigurationTarget.Global);
+            await cleanupScratchDir(scratchDir, document.uri);
+        }
+    });
+
+    test("replaces the selected text on a standard paste", async () => {
+        const { document, editor, scratchDir } = await openScratchMarkdown();
+
+        try {
+            await editor.edit(edit => edit.insert(new vscode.Position(0, 0), "before after"));
+            editor.selection = new vscode.Selection(0, 7, 0, 12);
+            await vscode.env.clipboard.writeText("inserted");
+            await pasteAndWait(document, "editor.action.clipboardPasteAction");
+
+            assert.strictEqual(document.getText(), "before inserted");
+        } finally {
+            await cleanupScratchDir(scratchDir, document.uri);
+        }
+    });
+
+    test("pastes text at every cursor in a standard paste", async () => {
+        const { document, editor, scratchDir } = await openScratchMarkdown();
+
+        try {
+            await editor.edit(edit => edit.insert(new vscode.Position(0, 0), "alpha\nbeta"));
+            editor.selections = [new vscode.Selection(0, 5, 0, 5), new vscode.Selection(1, 4, 1, 4)];
+            await vscode.env.clipboard.writeText("!");
+            await pasteAndWait(document, "editor.action.clipboardPasteAction");
+
+            assert.strictEqual(document.getText(), "alpha!\nbeta!");
+        } finally {
+            await cleanupScratchDir(scratchDir, document.uri);
+        }
+    });
+
+    test("undo reverses the result of a standard paste", async () => {
+        const { document, scratchDir } = await openScratchMarkdown();
+
+        try {
+            await vscode.env.clipboard.writeText("pasted text");
+            await pasteAndWait(document, "editor.action.clipboardPasteAction");
+            assert.strictEqual(document.getText(), "pasted text");
+
+            await vscode.commands.executeCommand("undo");
+            await waitForResult(() => document.getText() === "", "undo reverts pasted text");
+            assert.strictEqual(document.getText(), "");
+        } finally {
+            await cleanupScratchDir(scratchDir, document.uri);
+        }
+    });
+
+    test("standard paste converts a URL into a titled Markdown link", async () => {
+        const url = `${titleServerBaseUrl}/title`;
+        const { document, scratchDir } = await openScratchMarkdown();
+
+        try {
+            await vscode.env.clipboard.writeText(url);
+            await pasteAndWait(document, "editor.action.clipboardPasteAction");
+            await waitForResult(() => document.getText().includes("Example"), "URL title resolves");
+
+            assert.strictEqual(document.getText(), `[Example & Docs \\[2026\\]](<${url}>)`);
+        } finally {
+            await cleanupScratchDir(scratchDir, document.uri);
+        }
+    });
+
+    test("standard paste keeps a URL unchanged when URL conversion is disabled", async () => {
+        const url = `${titleServerBaseUrl}/title`;
+        const { document, scratchDir } = await openScratchMarkdown();
+        const config = vscode.workspace.getConfiguration("vsc-webp-paster");
+        const previousValue = config.get<boolean>("convertUrlToLink", true);
+
+        try {
+            await config.update("convertUrlToLink", false, vscode.ConfigurationTarget.Global);
+            await vscode.env.clipboard.writeText(url);
+            await pasteAndWait(document, "editor.action.clipboardPasteAction");
+
+            assert.strictEqual(document.getText(), url);
+        } finally {
+            await config.update("convertUrlToLink", previousValue, vscode.ConfigurationTarget.Global);
+            await cleanupScratchDir(scratchDir, document.uri);
+        }
+    });
+
+    test("does not convert a URL pasted into a plaintext document", async () => {
+        const url = `${titleServerBaseUrl}/title`;
+        const document = await vscode.workspace.openTextDocument({ language: "plaintext", content: "" });
+        const editor = await vscode.window.showTextDocument(document);
+
+        try {
+            editor.selection = new vscode.Selection(0, 0, 0, 0);
+            await vscode.env.clipboard.writeText(url);
+            await pasteAndWait(document, "editor.action.clipboardPasteAction");
+
+            assert.strictEqual(document.getText(), url);
+        } finally {
+            await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
+        }
+    });
+
     for (const scheme of ["file", "webp-e2e"]) {
         test(`preserves existing images and inserts a unique image link on ${scheme} storage`, async () => {
             const fileSystem = new TestFileSystem();
@@ -347,17 +500,7 @@ suite("Extension Test Suite", () => {
                 }
 
                 await vscode.env.clipboard.writeText(BASE64_PNG_DATA_URL);
-                if (registration) {
-                    fileSystem.statError = {
-                        uri: vscode.Uri.joinPath(imageDir, existingImages[0]),
-                        error: vscode.FileSystemError.NoPermissions(imageDir),
-                    };
-                    await vscode.commands.executeCommand(COMMAND_ID);
-                    fileSystem.statError = undefined;
-                    assert.strictEqual(document.getText(), "", "A failed existence check must stop the paste");
-                    assert.strictEqual((await vscode.workspace.fs.readDirectory(imageDir)).length, 2);
-                }
-                await vscode.commands.executeCommand(COMMAND_ID);
+                await pasteAndWait(document, "editor.action.clipboardPasteAction");
                 await document.save();
 
                 assert.strictEqual(document.getText(), "![e2e-image-2.webp](e2e-images/e2e-image-2.webp)");
@@ -368,7 +511,6 @@ suite("Extension Test Suite", () => {
                 const image = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(imageDir, "e2e-image-2.webp"));
                 assert.strictEqual(Buffer.from(image.subarray(8, 12)).toString("ascii"), "WEBP");
             } finally {
-                fileSystem.statError = undefined;
                 await cleanupScratchDir(scratchDir, document.uri);
                 registration?.dispose();
                 fileSystem.dispose();

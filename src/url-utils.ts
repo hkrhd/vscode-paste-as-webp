@@ -29,7 +29,7 @@ export class UrlUtils {
         return `[${escapedTitle}](<${normalizedUrl}>)`;
     }
 
-    static async fetchPageTitle(url: string, timeoutMs = 1500): Promise<string | null> {
+    static async fetchPageTitle(url: string, timeoutMs = 1500, signal?: AbortSignal): Promise<string | null> {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -37,7 +37,7 @@ export class UrlUtils {
             const response = await fetch(url, {
                 method: "GET",
                 redirect: "follow",
-                signal: controller.signal,
+                signal: signal ? AbortSignal.any([controller.signal, signal]) : controller.signal,
                 headers: {
                     Accept: "text/html,application/xhtml+xml",
                     "User-Agent": "Mozilla/5.0 (compatible; VSCode-WebP-Paster/1.0)",

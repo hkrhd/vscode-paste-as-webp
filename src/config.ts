@@ -30,7 +30,7 @@ export class DefaultConfigProvider implements ConfigProvider {
     getConfig(): ExtensionConfig {
         return {
             imageDir: this.vscodeConfig.get("imageDir") || "img",
-            quality: this.vscodeConfig.get("quality") || 80,
+            quality: this.vscodeConfig.get("quality") ?? 80,
             namingConvention: this.vscodeConfig.get("namingConvention") || "image-${timestamp}",
             insertPattern: this.vscodeConfig.get("insertPattern") || "![${fileName}](${relativePath})",
             useWorkspaceRoot: this.vscodeConfig.get("useWorkspaceRoot") ?? false,
