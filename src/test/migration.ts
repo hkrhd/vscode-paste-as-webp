@@ -38,6 +38,16 @@ export async function runShortcutMigrationTests(executable: string, baseArgs: st
             const editor = page.locator('.monaco-editor[data-uri$="/note.md"]');
             await editor.waitFor();
             const modifier = process.platform === "darwin" ? "Meta" : "Control";
+            if (!restarted) {
+                await page.keyboard.press("F1");
+                await page.locator(".quick-input-widget input").fill(">Developer: Show Running Extensions");
+                await page.keyboard.press("Enter");
+                const extension = page.locator(".runtime-extensions-editor .extension")
+                    .filter({ hasText: /hkrhd\.vsc-webp-paster|WebP Image Paster/ });
+                await extension.locator(".activation-time").filter({ hasText: /Activation:.*ms/ }).waitFor();
+                await page.keyboard.press(`${modifier}+w`);
+                await editor.waitFor();
+            }
             const notifications = () => page.locator(".notification-list-item-message").allTextContents();
             async function assertNoNotice(): Promise<void> {
                 const deadline = Date.now() + 500;
@@ -57,7 +67,10 @@ export async function runShortcutMigrationTests(executable: string, baseArgs: st
                 await page.waitForFunction(({ count }) => {
                     const text = document.querySelector('.monaco-editor[data-uri$="/note.md"] .view-lines')?.textContent ?? "";
                     return (text.match(/\.webp\)/g) ?? []).length === count;
-                }, { count: imageCount });
+                }, { count: imageCount }).catch(async error => {
+                    console.error("Paste UI state:", await editor.textContent(), await notifications());
+                    throw error;
+                });
                 await page.keyboard.press(`${modifier}+s`);
                 await page.waitForFunction(() => !document.querySelector(".tab.active.dirty"));
                 const markdown = await readFile(note, "utf8");
