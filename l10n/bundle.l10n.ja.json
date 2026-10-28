@@ -1,4 +1,5 @@
 {
+  "You can now save WebP images with normal paste. Your existing shortcut still works.": "通常の貼り付けでWebP保存できます。既存のショートカットも引き続き使えます。",
   "extension.noActiveEditor": "アクティブなエディタがありません。",
   "extension.error": "エラーが発生しました: {0}",
   "extension.showDetails": "詳細を表示",

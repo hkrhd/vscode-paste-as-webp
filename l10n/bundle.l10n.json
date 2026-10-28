@@ -1,4 +1,5 @@
 {
+  "You can now save WebP images with normal paste. Your existing shortcut still works.": "You can now save WebP images with normal paste. Your existing shortcut still works.",
   "extension.noActiveEditor": "No active editor found.",
   "extension.error": "An error occurred: {0}",
   "extension.showDetails": "Show Details",

@@ -4,6 +4,7 @@ import { VSCodeMessageProvider } from "./message-provider";
 import { logger } from "./logger";
 
 export function activate(context: vscode.ExtensionContext) {
+    let migrationNoticeShown = context.globalState.get<boolean>("nativePasteMigrationNoticeShown", false);
     if (vscode.workspace.getConfiguration("vsc-webp-paster").get<boolean>("debugMode")) {
         logger.show();
     }
@@ -19,6 +20,13 @@ export function activate(context: vscode.ExtensionContext) {
                 return;
             }
             await vscode.commands.executeCommand("editor.action.pasteAs", { kind: pasteKind.value });
+            if (!migrationNoticeShown) {
+                migrationNoticeShown = true;
+                await context.globalState.update("nativePasteMigrationNoticeShown", true);
+                void vscode.window.showInformationMessage(vscode.l10n.t(
+                    "You can now save WebP images with normal paste. Your existing shortcut still works."
+                ));
+            }
         })
     );
 }

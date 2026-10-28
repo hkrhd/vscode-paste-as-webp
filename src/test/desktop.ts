@@ -5,7 +5,7 @@ import { randomUUID } from "node:crypto";
 import { SshFixture } from "./ssh/podman";
 
 // The bridge operates only the isolated test window and its OS clipboard.
-export async function runDesktopTests(executablePath: string, args: string[], fixture?: SshFixture): Promise<void> {
+export async function runDesktopTests(executablePath: string, args: string[], fixture?: SshFixture, scenario?: (application: ElectronApplication, bridge: string) => Promise<void>): Promise<void> {
     let application: ElectronApplication | undefined;
     const secret = randomUUID();
     const server = createServer(async (request, response) => {
@@ -28,10 +28,11 @@ export async function runDesktopTests(executablePath: string, args: string[], fi
                     return image.toPNG().toString("base64");
                 });
                 response.end(JSON.stringify({ png }));
-            } else if (action === "paste") {
+            } else if (action === "paste" || action === "legacy-paste") {
                 const page = await application.firstWindow();
                 await page.bringToFront();
-                await page.keyboard.press(process.platform === "darwin" ? "Meta+v" : "Control+v");
+                const modifier = process.platform === "darwin" ? "Meta" : "Control";
+                await page.keyboard.press(action === "legacy-paste" ? `${modifier}+Alt+Shift+v` : `${modifier}+v`);
                 response.end("{}");
             } else if (action === "read" && fixture) {
                 const bytes = await fixture.readFile(url.searchParams.get("path") ?? "");
@@ -56,6 +57,10 @@ export async function runDesktopTests(executablePath: string, args: string[], fi
         const child = application.process();
         child.stdout?.pipe(process.stdout);
         child.stderr?.pipe(process.stderr);
+        if (scenario) {
+            await scenario(application, bridge);
+            return;
+        }
         await new Promise<void>((resolve, reject) => {
             const deadline = setTimeout(() => reject(new Error("VS Code test run exceeded 10 minutes")), 600000);
             child.once("exit", code => {

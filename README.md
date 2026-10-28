@@ -28,6 +28,8 @@ Install from [Visual Studio Marketplace](https://marketplace.visualstudio.com/it
 
 - Command Palette → "Paste as WebP in MD"
 
+On update, the extension's former default shortcut is replaced by VS Code's standard paste handling. Custom shortcuts assigned to `vsc-webp-paster.pasteAsWebpInMd` still work; using this command shows a brief migration notice once per profile, including when run from the Command Palette.
+
 ## ⚙️ Configuration
 
 See configuration descriptions for details

@@ -5,6 +5,7 @@ import { execFileSync } from "node:child_process";
 import { downloadAndUnzipVSCode, resolveCliArgsFromVSCodeExecutablePath } from "@vscode/test-electron";
 import { runDesktopTests } from "./desktop";
 import { startSshFixture } from "./ssh/podman";
+import { runShortcutMigrationTests } from "./migration";
 
 async function main(): Promise<void> {
     const extensionDevelopmentPath = path.resolve(__dirname, "../../");
@@ -23,6 +24,7 @@ async function main(): Promise<void> {
             `--extensionTestsPath=${path.resolve(__dirname, "suite/index.js")}`,
             path.resolve(extensionDevelopmentPath, "src/test/fixtures/workspace"),
         ]);
+        await runShortcutMigrationTests(executable, baseArgs, root);
         const fixture = await startSshFixture();
         try {
             const user = path.join(root, "ssh-user");
