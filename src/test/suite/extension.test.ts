@@ -361,8 +361,8 @@ suite("Extension Test Suite", () => {
         }
     });
 
-    test("text preference keeps Base64 text on standard paste while the dedicated command creates WebP", async () => {
-        const { document, editor, scratchDir } = await openScratchMarkdown();
+    test("text preference keeps Base64 text on standard paste", async () => {
+        const { document, scratchDir } = await openScratchMarkdown();
         const editorConfig = vscode.workspace.getConfiguration("editor");
         const previousPreferences = editorConfig.inspect<string[]>("pasteAs.preferences")?.globalValue;
 
@@ -371,12 +371,24 @@ suite("Extension Test Suite", () => {
             await vscode.env.clipboard.writeText(BASE64_PNG_DATA_URL);
             await pasteAndWait(document, "editor.action.clipboardPasteAction");
             assert.strictEqual(document.getText(), BASE64_PNG_DATA_URL);
+        } finally {
+            await editorConfig.update("pasteAs.preferences", previousPreferences, vscode.ConfigurationTarget.Global);
+            await cleanupScratchDir(scratchDir, document.uri);
+        }
+    });
 
-            editor.selection = new vscode.Selection(0, document.lineAt(0).text.length, 0, document.lineAt(0).text.length);
+    test("dedicated command creates WebP even when text paste is preferred", async () => {
+        const { document, scratchDir } = await openScratchMarkdown();
+        const editorConfig = vscode.workspace.getConfiguration("editor");
+        const previousPreferences = editorConfig.inspect<string[]>("pasteAs.preferences")?.globalValue;
+
+        try {
+            await editorConfig.update("pasteAs.preferences", ["text"], vscode.ConfigurationTarget.Global);
+            await vscode.env.clipboard.writeText(BASE64_PNG_DATA_URL);
             await pasteAndWait(document, COMMAND_ID);
             await waitForResult(() => document.getText().includes("e2e-image"), "dedicated command inserts WebP Markdown");
 
-            const markdown = document.getText().slice(BASE64_PNG_DATA_URL.length);
+            const markdown = document.getText();
             assert.match(markdown, /^!\[e2e-image(?:-\d+)?\.webp\]\(e2e-images\/e2e-image(?:-\d+)?\.webp\)$/);
             const relativePath = markdown.match(/\((?<path>[^)]+)\)$/)?.groups?.path;
             assert.ok(relativePath, "Dedicated command should add an image path");
