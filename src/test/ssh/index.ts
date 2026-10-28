@@ -4,7 +4,7 @@ import sharp from "sharp";
 import Mocha from "mocha";
 import { waitForResult, pasteAndWait } from "../suite/paste";
 
-async function request(action: string): Promise<{ png?: string; bytes?: string }> {
+async function request(action: string): Promise<{ png?: string; bytes?: string; notifications?: string[] }> {
     assert.ok(process.env.VSC_WEBP_TEST_BRIDGE);
     const response = await fetch(`${process.env.VSC_WEBP_TEST_BRIDGE}/${action}`);
     const body = await response.text();
@@ -77,6 +77,15 @@ export async function run(): Promise<void> {
                 const markdown = await request(`read?path=${stem}.md`);
                 assert.ok(markdown.bytes);
                 assert.equal(Buffer.from(markdown.bytes, "base64").toString("utf8"), document.getText());
+                if (!explicit) {
+                    for (let attempt = 0; attempt < 10; attempt++) {
+                        const { notifications } = await request("notifications");
+                        assert.ok(notifications);
+                        assert.ok(!notifications.includes("You can now save WebP images with normal paste. Your existing shortcut still works."),
+                            "Standard paste in a fresh profile must not show the migration notice");
+                        await new Promise(resolve => setTimeout(resolve, 50));
+                    }
+                }
             });
         }
     });

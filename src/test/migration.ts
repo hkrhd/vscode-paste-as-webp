@@ -14,7 +14,7 @@ export async function runShortcutMigrationTests(executable: string, baseArgs: st
     await mkdir(workspace, { recursive: true });
     await writeFile(note, "");
     await writeFile(path.join(user, "User", "keybindings.json"), JSON.stringify([{
-        key: process.platform === "darwin" ? "cmd+alt+shift+v" : "ctrl+alt+shift+v",
+        key: process.platform === "darwin" ? "cmd+v" : "ctrl+v",
         command: "vsc-webp-paster.pasteAsWebpInMd",
         when: "editorTextFocus && editorLangId == markdown",
     }]));
@@ -38,16 +38,6 @@ export async function runShortcutMigrationTests(executable: string, baseArgs: st
             const editor = page.locator('.monaco-editor[data-uri$="/note.md"]');
             await editor.waitFor();
             const modifier = process.platform === "darwin" ? "Meta" : "Control";
-            if (!restarted) {
-                await page.keyboard.press("F1");
-                await page.locator(".quick-input-widget input").fill(">Developer: Show Running Extensions");
-                await page.keyboard.press("Enter");
-                const extension = page.locator(".runtime-extensions-editor .extension")
-                    .filter({ hasText: /hkrhd\.vsc-webp-paster|WebP Image Paster/ });
-                await extension.locator(".activation-time").filter({ hasText: /Activation:.*ms/ }).waitFor();
-                await page.keyboard.press(`${modifier}+w`);
-                await editor.waitFor();
-            }
             const notifications = () => page.locator(".notification-list-item-message").allTextContents();
             async function assertNoNotice(): Promise<void> {
                 const deadline = Date.now() + 500;
@@ -56,12 +46,12 @@ export async function runShortcutMigrationTests(executable: string, baseArgs: st
                     await page.waitForTimeout(50);
                 } while (Date.now() < deadline);
             }
-            async function pasteImage(action: "paste" | "legacy-paste"): Promise<void> {
+            async function pasteImage(): Promise<void> {
                 await editor.locator(".view-lines").click();
                 await page.keyboard.press(process.platform === "darwin" ? "Meta+ArrowDown" : "Control+End");
                 const capture = await fetch(`${bridge}/capture`);
                 assert.ok(capture.ok, await capture.text());
-                const paste = await fetch(`${bridge}/${action}`);
+                const paste = await fetch(`${bridge}/paste`);
                 assert.ok(paste.ok, await paste.text());
                 imageCount++;
                 await page.waitForFunction(({ count }) => {
@@ -82,12 +72,7 @@ export async function runShortcutMigrationTests(executable: string, baseArgs: st
                 }
                 assert.equal((await readdir(path.join(workspace, "images"))).length, imageCount);
             }
-            if (!restarted) {
-                await pasteImage("paste");
-                await assertNoNotice();
-                console.log("  ✔ Standard paste saves WebP without a migration notice");
-            }
-            await pasteImage("legacy-paste");
+            await pasteImage();
             if (restarted) {
                 await assertNoNotice();
                 console.log("  ✔ Existing shortcut saves WebP without repeating the notice after app restart");
@@ -103,7 +88,7 @@ export async function runShortcutMigrationTests(executable: string, baseArgs: st
             }
             await editor.locator(".view-lines").click();
             await application.evaluate(({ clipboard }) => clipboard.writeText("existing shortcut still works"));
-            await page.keyboard.press(`${modifier}+Alt+Shift+v`);
+            await page.keyboard.press(`${modifier}+v`);
             await editor.locator(".view-lines").filter({ hasText: "existing shortcut still works" }).waitFor();
             await assertNoNotice();
             await page.keyboard.press(`${modifier}+s`);

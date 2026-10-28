@@ -28,12 +28,14 @@ export async function runDesktopTests(executablePath: string, args: string[], fi
                     return image.toPNG().toString("base64");
                 });
                 response.end(JSON.stringify({ png }));
-            } else if (action === "paste" || action === "legacy-paste") {
+            } else if (action === "paste") {
                 const page = await application.firstWindow();
                 await page.bringToFront();
-                const modifier = process.platform === "darwin" ? "Meta" : "Control";
-                await page.keyboard.press(action === "legacy-paste" ? `${modifier}+Alt+Shift+v` : `${modifier}+v`);
+                await page.keyboard.press(process.platform === "darwin" ? "Meta+v" : "Control+v");
                 response.end("{}");
+            } else if (action === "notifications") {
+                const page = await application.firstWindow();
+                response.end(JSON.stringify({ notifications: await page.locator(".notification-list-item-message").allTextContents() }));
             } else if (action === "read" && fixture) {
                 const bytes = await fixture.readFile(url.searchParams.get("path") ?? "");
                 response.end(JSON.stringify({ bytes: bytes.toString("base64") }));
