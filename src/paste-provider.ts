@@ -30,6 +30,7 @@ export class WebpPasteProvider implements vscode.DocumentPasteEditProvider<WebpP
         context: vscode.DocumentPasteEditContext,
         token: vscode.CancellationToken
     ): Promise<WebpPasteEdit[] | undefined> {
+        logger.debug("PasteProvider", "Provide", { triggerKind: context.triggerKind, only: context.only?.value });
         const config = new DefaultConfigProvider(
             vscode.workspace.getConfiguration("vsc-webp-paster", document.uri), this.messages
         ).getConfig();
@@ -53,6 +54,9 @@ export class WebpPasteProvider implements vscode.DocumentPasteEditProvider<WebpP
                 }
             }
         }
+        logger.debug("PasteProvider", "Clipboard types", {
+            hasImage: !!image, textLength: text.length, cancelled: token.isCancellationRequested
+        });
         if (token.isCancellationRequested) {
             return;
         }
@@ -76,6 +80,10 @@ export class WebpPasteProvider implements vscode.DocumentPasteEditProvider<WebpP
         if (context.triggerKind === vscode.DocumentPasteTriggerKind.PasteAs) {
             await this.resolveDocumentPasteEdit(edit, token);
         }
+        logger.debug("PasteProvider", "Return", {
+            triggerKind: context.triggerKind, kind: kind.value, cancelled: token.isCancellationRequested,
+            textLength: typeof edit.insertText === "string" ? edit.insertText.length : edit.insertText.value.length
+        });
         return token.isCancellationRequested ? undefined : [edit];
     }
 
@@ -132,6 +140,7 @@ export class WebpPasteProvider implements vscode.DocumentPasteEditProvider<WebpP
             edit.insertText = ConfigUtils.expandInsertPattern(config.insertPattern, fileName, relative);
             edit.additionalEdit = new vscode.WorkspaceEdit();
             edit.additionalEdit.createFile(imageUri, { contents: webp });
+            logger.debug("PasteProvider", "Resolved image", { kind: edit.kind?.value, cancelled: token.isCancellationRequested });
             return edit;
         } catch (error) {
             logger.error("PasteProvider", "Paste failed", error);

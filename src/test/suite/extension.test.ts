@@ -381,12 +381,16 @@ suite("Extension Test Suite", () => {
         const { document, scratchDir } = await openScratchMarkdown();
         const editorConfig = vscode.workspace.getConfiguration("editor");
         const previousPreferences = editorConfig.inspect<string[]>("pasteAs.preferences")?.globalValue;
+        const config = vscode.workspace.getConfiguration("vsc-webp-paster");
+        const previousDebug = config.inspect<boolean>("debugMode")?.globalValue;
 
         try {
+            await config.update("debugMode", true, vscode.ConfigurationTarget.Global);
             await editorConfig.update("pasteAs.preferences", ["text"], vscode.ConfigurationTarget.Global);
             await vscode.env.clipboard.writeText(BASE64_PNG_DATA_URL);
             await pasteAndWait(document, COMMAND_ID);
-            await waitForResult(() => document.getText().includes("e2e-image"), "dedicated command inserts WebP Markdown");
+            await waitForResult(() => document.getText().includes("e2e-image"),
+                `dedicated command inserts WebP Markdown (got ${JSON.stringify(document.getText())})`);
 
             const markdown = document.getText();
             assert.match(markdown, /^!\[e2e-image(?:-\d+)?\.webp\]\(e2e-images\/e2e-image(?:-\d+)?\.webp\)$/);
@@ -394,6 +398,7 @@ suite("Extension Test Suite", () => {
             assert.ok(relativePath, "Dedicated command should add an image path");
             assert.ok((await vscode.workspace.fs.stat(vscode.Uri.joinPath(scratchDir, relativePath))).size > 0);
         } finally {
+            await config.update("debugMode", previousDebug, vscode.ConfigurationTarget.Global);
             await editorConfig.update("pasteAs.preferences", previousPreferences, vscode.ConfigurationTarget.Global);
             await cleanupScratchDir(scratchDir, document.uri);
         }
