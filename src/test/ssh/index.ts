@@ -47,6 +47,18 @@ export async function run(): Promise<void> {
                 }
                 const relative = `images/nested/${stem}.webp`;
                 assert.ok(document.getText().includes(`![${stem}.webp](${relative})`), document.getText());
+                const imageUri = vscode.Uri.joinPath(workspace.uri, relative);
+                // The text change is observable before the additional file edit finishes.
+                await waitForResult(async () => {
+                    try {
+                        return (await vscode.workspace.fs.stat(imageUri)).size > 0;
+                    } catch (error) {
+                        if (error instanceof vscode.FileSystemError && error.code === "FileNotFound") {
+                            return false;
+                        }
+                        throw error;
+                    }
+                }, "remote WebP file creation completes");
                 await document.save();
                 const saved = await request(`read?path=${encodeURIComponent(relative)}`);
                 assert.ok(saved.bytes);
