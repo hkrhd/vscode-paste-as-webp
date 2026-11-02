@@ -8,6 +8,7 @@ import { pathToFileURL } from "node:url";
 const execFile = promisify(execFileCallback);
 const source = "https://nodejs.org/dist/index.json";
 const versionPattern = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/u;
+const prereleasePattern = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*$/u;
 const markerPattern = /<!-- node-lts-monitor version=(\d+\.\d+\.\d+) -->/u;
 const commandOptions = { timeout: 120_000, maxBuffer: 16 * 1024 * 1024 };
 
@@ -25,7 +26,8 @@ export function buildLtsReport({ releases, issues }) {
     if (!Array.isArray(releases) || !releases.length) throw new Error("Node.jsのリリース一覧が不正です。");
     for (const release of releases) {
         if (!release || typeof release.version !== "string" || !release.version.startsWith("v") ||
-            !versionPattern.test(release.version.slice(1)) ||
+            !(versionPattern.test(release.version.slice(1)) ||
+                (release.lts === false && prereleasePattern.test(release.version.slice(1)))) ||
             !(release.lts === false || (typeof release.lts === "string" && release.lts.trim()))) {
             throw new Error("Node.jsのリリース情報が不正です。");
         }

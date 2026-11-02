@@ -36,6 +36,15 @@ test("Current版や旧LTS系列だけの更新では再通知しない", () => {
     assert.equal(report.shouldNotify, false);
 });
 
+test("非LTSのプレリリースが含まれても最新LTSを通知する", () => {
+    const report = buildLtsReport({
+        releases: [...releases, { version: "v27.0.0-alpha.0.0.0", lts: false }],
+        issues: [],
+    });
+    assert.equal(report.candidate, "24.22.1");
+    assert.equal(report.shouldNotify, true);
+});
+
 test("開閉済みIssueの通知済みバージョンと、それ以下は再通知しない", () => {
     for (const state of ["open", "closed"]) {
         for (const previous of ["24.22.1", "26.0.0"]) {
