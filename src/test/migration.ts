@@ -4,7 +4,7 @@ import * as path from "node:path";
 import sharp from "sharp";
 import { runDesktopTests } from "./desktop";
 
-const NOTICE = "You can now save WebP images with normal paste. Your existing shortcut still works.";
+const NOTICE = "This extension now uses VS Code’s built-in paste API. Please remove the shortcut for “Paste as WebP in MD” and use normal paste.";
 
 export async function runShortcutMigrationTests(executable: string, baseArgs: string[], root: string): Promise<void> {
     const user = path.join(root, "migration-user");
@@ -26,8 +26,8 @@ export async function runShortcutMigrationTests(executable: string, baseArgs: st
     }));
     let imageCount = 0;
     for (const restarted of [false, true]) {
-        // --extensionTestsPath makes VS Code use in-memory storage. Launch normally
-        // so this scenario verifies the real profile survives a full app restart.
+        // Launch normally with the same profile to verify the notice appears again
+        // after a full app restart.
         await runDesktopTests(executable, [
             ...baseArgs, "--locale=en",
             `--user-data-dir=${user}`, `--extensions-dir=${path.join(root, "migration-extensions")}`,
@@ -91,19 +91,14 @@ export async function runShortcutMigrationTests(executable: string, baseArgs: st
                 assert.equal((await readdir(path.join(workspace, "images"))).length, imageCount);
             }
             await pasteImage();
-            if (restarted) {
-                await assertNoNotice();
-                console.log("  ✔ Existing shortcut saves WebP without repeating the notice after app restart");
-            } else {
-                await page.locator(".notification-list-item-message").filter({ hasText: NOTICE }).waitFor();
-                assert.equal((await notifications()).filter(message => message === NOTICE).length, 1);
-                console.log("  ✔ Existing shortcut saves WebP and shows the migration notice once");
-                await page.keyboard.press("F1");
-                await page.locator(".quick-input-widget input").fill(">Notifications: Clear All Notifications");
-                await page.keyboard.press("Enter");
-                await page.locator(".quick-input-widget").waitFor({ state: "hidden" });
-                await page.locator(".notification-list-item-message").filter({ hasText: NOTICE }).waitFor({ state: "hidden" });
-            }
+            await page.locator(".notification-list-item-message").filter({ hasText: NOTICE }).waitFor();
+            assert.equal((await notifications()).filter(message => message === NOTICE).length, 1);
+            console.log(`  ✔ Existing shortcut saves WebP and shows the migration notice once${restarted ? " after restart" : ""}`);
+            await page.keyboard.press("F1");
+            await page.locator(".quick-input-widget input").fill(">Notifications: Clear All Notifications");
+            await page.keyboard.press("Enter");
+            await page.locator(".quick-input-widget").waitFor({ state: "hidden" });
+            await page.locator(".notification-list-item-message").filter({ hasText: NOTICE }).waitFor({ state: "hidden" });
             await editor.locator(".view-lines").click();
             await application.evaluate(({ clipboard }) => clipboard.writeText("existing shortcut still works"));
             await page.keyboard.press(`${modifier}+v`);

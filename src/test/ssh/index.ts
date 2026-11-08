@@ -81,7 +81,7 @@ export async function run(): Promise<void> {
                     for (let attempt = 0; attempt < 10; attempt++) {
                         const { notifications } = await request("notifications");
                         assert.ok(notifications);
-                        assert.ok(!notifications.includes("You can now save WebP images with normal paste. Your existing shortcut still works."),
+                        assert.ok(!notifications.includes("This extension now uses VS Code’s built-in paste API. Please remove the shortcut for “Paste as WebP in MD” and use normal paste."),
                             "Standard paste in a fresh profile must not show the migration notice");
                         await new Promise(resolve => setTimeout(resolve, 50));
                     }

@@ -1,5 +1,5 @@
 {
-  "You can now save WebP images with normal paste. Your existing shortcut still works.": "You can now save WebP images with normal paste. Your existing shortcut still works.",
+  "This extension now uses VS Code’s built-in paste API. Please remove the shortcut for “Paste as WebP in MD” and use normal paste.": "This extension now uses VS Code’s built-in paste API. Please remove the shortcut for “Paste as WebP in MD” and use normal paste.",
   "extension.noActiveEditor": "No active editor found.",
   "extension.error": "An error occurred: {0}",
   "extension.showDetails": "Show Details",
