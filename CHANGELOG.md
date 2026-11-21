@@ -1,3 +1,23 @@
+# [1.0.0](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.7.5...v1.0.0) (2026-11-22)
+
+
+### Features
+
+* 標準Paste APIへ移行し実SSHの画像貼り付けテストを追加 ([6957471](https://github.com/hkrhd/vscode-paste-as-webp/commit/6957471550a2440d2e5f65a2aeaf53dc0e2d978c))
+* 標準貼り付けでOS依存を減らし旧ショートカットを維持 ([e6d7de5](https://github.com/hkrhd/vscode-paste-as-webp/commit/e6d7de580851c076a82b68889b39cc283e67b6fa))
+* VS Codeのプレリリースを公開できるようにする ([1d9cafd](https://github.com/hkrhd/vscode-paste-as-webp/commit/1d9cafdff821af793e8ec0b547aee880e599fde2))
+
+### Bug Fixes
+
+* ペースト移行通知を明確化し再起動ごとに表示 ([e11a0cf](https://github.com/hkrhd/vscode-paste-as-webp/commit/e11a0cf7d05a3173764062bc8f0ba3a737781d80))
+* Node.js監視で非LTSのプレリリースを無視する ([9dafc8e](https://github.com/hkrhd/vscode-paste-as-webp/commit/9dafc8ef2949731dd58b384ac65769eac65650f1))
+
+
+### BREAKING CHANGES
+
+* 最低対応APIをAntigravity基準の1.107へ更新 ([7bbf449](https://github.com/hkrhd/vscode-paste-as-webp/commit/7bbf449dd83ef9731af5fe5e449b552cb737043c))
+* 外部コマンドによるクリップボード取得を廃止し、VS Code標準のPaste APIとワークスペースファイルAPIを使用
+
 ## [0.7.5](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.7.4...v0.7.5) (2026-10-24)
 
 
