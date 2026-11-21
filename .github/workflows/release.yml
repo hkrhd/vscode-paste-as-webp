@@ -58,7 +58,7 @@ jobs:
 
       - name: Run extension tests
         env:
-          VSCODE_TEST_VERSION: "1.118.0"
+          VSCODE_TEST_VERSION: "stable"
         run: xvfb-run -a npm test
 
   build-and-publish:
