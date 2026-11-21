@@ -80,6 +80,16 @@ async function cleanupScratchDir(scratchDir: vscode.Uri, documentUri: vscode.Uri
     await vscode.workspace.fs.delete(scratchDir, { recursive: true, useTrash: false });
 }
 
+async function waitForImageFile(uri: vscode.Uri): Promise<void> {
+    await waitForResult(async () => {
+        try {
+            return (await vscode.workspace.fs.stat(uri)).size > 0;
+        } catch {
+            return false;
+        }
+    }, `generated image is written: ${uri.toString()}`);
+}
+
 async function configureExtension(): Promise<void> {
     const config = vscode.workspace.getConfiguration("vsc-webp-paster");
     await config.update("imageDir", "e2e-images", vscode.ConfigurationTarget.Global);
@@ -289,6 +299,7 @@ suite("Extension Test Suite", () => {
             assert.ok(fileNameMatch?.groups?.relativePath, "Markdown should contain a relative image path");
 
             const imageUri = vscode.Uri.joinPath(scratchDir, fileNameMatch.groups.relativePath);
+            await waitForImageFile(imageUri);
             const imageStat = await vscode.workspace.fs.stat(imageUri);
             assert.ok(imageStat.size > 0, "Generated WebP file should not be empty");
 
@@ -317,6 +328,7 @@ suite("Extension Test Suite", () => {
             const relativePath = link.match(/\((?<path>[^)]+)\)$/)?.groups?.path;
             assert.ok(relativePath, "Pasted Markdown should contain the generated image path");
             const imageUri = vscode.Uri.joinPath(scratchDir, relativePath);
+            await waitForImageFile(imageUri);
             assert.ok((await vscode.workspace.fs.stat(imageUri)).size > 0);
 
             await vscode.commands.executeCommand("undo");
@@ -353,6 +365,7 @@ suite("Extension Test Suite", () => {
             const relativePath = links[0].match(/\((?<path>[^)]+)\)$/)?.groups?.path;
             assert.ok(relativePath, "Pasted Markdown should contain the generated image path");
             const imageDir = vscode.Uri.joinPath(scratchDir, "e2e-images");
+            await waitForImageFile(vscode.Uri.joinPath(scratchDir, relativePath));
             const files = await vscode.workspace.fs.readDirectory(imageDir);
             assert.deepStrictEqual(files.map(([name]) => name), [path.posix.basename(relativePath)]);
             assert.ok((await vscode.workspace.fs.stat(vscode.Uri.joinPath(scratchDir, relativePath))).size > 0);
@@ -396,7 +409,9 @@ suite("Extension Test Suite", () => {
             assert.match(markdown, /^!\[e2e-image(?:-\d+)?\.webp\]\(e2e-images\/e2e-image(?:-\d+)?\.webp\)$/);
             const relativePath = markdown.match(/\((?<path>[^)]+)\)$/)?.groups?.path;
             assert.ok(relativePath, "Dedicated command should add an image path");
-            assert.ok((await vscode.workspace.fs.stat(vscode.Uri.joinPath(scratchDir, relativePath))).size > 0);
+            const imageUri = vscode.Uri.joinPath(scratchDir, relativePath);
+            await waitForImageFile(imageUri);
+            assert.ok((await vscode.workspace.fs.stat(imageUri)).size > 0);
         } finally {
             await config.update("debugMode", previousDebug, vscode.ConfigurationTarget.Global);
             await editorConfig.update("pasteAs.preferences", previousPreferences, vscode.ConfigurationTarget.Global);
@@ -525,6 +540,7 @@ suite("Extension Test Suite", () => {
                     const content = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(imageDir, name));
                     assert.strictEqual(Buffer.from(content).toString(), name, "Existing image must not be overwritten");
                 }
+                await waitForImageFile(vscode.Uri.joinPath(imageDir, "e2e-image-2.webp"));
                 const image = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(imageDir, "e2e-image-2.webp"));
                 assert.strictEqual(Buffer.from(image.subarray(8, 12)).toString("ascii"), "WEBP");
             } finally {
