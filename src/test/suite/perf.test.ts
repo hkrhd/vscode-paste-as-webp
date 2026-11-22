@@ -122,7 +122,7 @@ suite("Performance Test Suite", () => {
         try {
             await vscode.env.clipboard.writeText("plain clipboard text");
             await measureScenario("paste-plain-text", async () => {
-                await pasteAndWait(document, "editor.action.clipboardPasteAction");
+                await pasteAndWait(document);
                 await document.save();
             });
 
@@ -138,7 +138,7 @@ suite("Performance Test Suite", () => {
         try {
             await vscode.env.clipboard.writeText(BASE64_PNG_DATA_URL);
             await measureScenario("paste-base64-image", async () => {
-                await pasteAndWait(document, "editor.action.clipboardPasteAction");
+                await pasteAndWait(document);
                 await document.save();
             });
 

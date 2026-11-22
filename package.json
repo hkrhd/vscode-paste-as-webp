@@ -26,10 +26,17 @@
 		"commands": [
 			{
 				"command": "vsc-webp-paster.pasteAsWebpInMd",
-				"title": "Paste as WebP in MD",
-				"enablement": "editorLangId == markdown && !notebookEditorFocused"
+				"title": "Paste as WebP in MD"
 			}
 		],
+		"menus": {
+			"commandPalette": [
+				{
+					"command": "vsc-webp-paster.pasteAsWebpInMd",
+					"when": "false"
+				}
+			]
+		},
 		"configuration": {
 			"title": "WebP Paster",
 			"properties": {

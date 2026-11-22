@@ -9,7 +9,7 @@ export async function waitForResult(predicate: () => boolean | Promise<boolean>,
     }
 }
 
-export async function pasteAndWait(document: vscode.TextDocument, command = "vsc-webp-paster.pasteAsWebpInMd"): Promise<void> {
+export async function pasteAndWait(document: vscode.TextDocument, command = "editor.action.clipboardPasteAction"): Promise<void> {
     const before = document.getText();
     await vscode.commands.executeCommand(command);
     await waitForResult(() => document.getText() !== before, "paste changes the document");

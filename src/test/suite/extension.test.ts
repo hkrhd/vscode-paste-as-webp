@@ -222,7 +222,7 @@ suite("Extension Test Suite", () => {
 
         try {
             await vscode.env.clipboard.writeText("plain clipboard text");
-            await pasteAndWait(document, "editor.action.clipboardPasteAction");
+            await pasteAndWait(document);
             await document.save();
 
             assert.strictEqual(document.getText(), "plain clipboard text");
@@ -286,7 +286,7 @@ suite("Extension Test Suite", () => {
 
         try {
             await vscode.env.clipboard.writeText(BASE64_PNG_DATA_URL);
-            await pasteAndWait(document, "editor.action.clipboardPasteAction");
+            await pasteAndWait(document);
             await document.save();
 
             const markdown = document.getText();
@@ -321,7 +321,7 @@ suite("Extension Test Suite", () => {
             await editor.edit(edit => edit.insert(new vscode.Position(0, 0), originalText));
             editor.selection = new vscode.Selection(0, 7, 0, 12);
             await vscode.env.clipboard.writeText(BASE64_PNG_DATA_URL);
-            await pasteAndWait(document, "editor.action.clipboardPasteAction");
+            await pasteAndWait(document);
 
             const link = document.getText().slice("before ".length);
             assert.match(link, /^!\[e2e-image(?:-\d+)?\.webp\]\(e2e-images\/e2e-image(?:-\d+)?\.webp\)$/);
@@ -355,7 +355,7 @@ suite("Extension Test Suite", () => {
             await editor.edit(edit => edit.insert(new vscode.Position(0, 0), "alpha\nbeta"));
             editor.selections = [new vscode.Selection(0, 5, 0, 5), new vscode.Selection(1, 4, 1, 4)];
             await vscode.env.clipboard.writeText(BASE64_PNG_DATA_URL);
-            await pasteAndWait(document, "editor.action.clipboardPasteAction");
+            await pasteAndWait(document);
 
             const links = [...document.getText().matchAll(/!\[[^\]]+\]\([^)]+\)/g)].map(match => match[0]);
             assert.strictEqual(links.length, 2, "Each cursor should receive an image link");
@@ -382,38 +382,9 @@ suite("Extension Test Suite", () => {
         try {
             await editorConfig.update("pasteAs.preferences", ["text"], vscode.ConfigurationTarget.Global);
             await vscode.env.clipboard.writeText(BASE64_PNG_DATA_URL);
-            await pasteAndWait(document, "editor.action.clipboardPasteAction");
+            await pasteAndWait(document);
             assert.strictEqual(document.getText(), BASE64_PNG_DATA_URL);
         } finally {
-            await editorConfig.update("pasteAs.preferences", previousPreferences, vscode.ConfigurationTarget.Global);
-            await cleanupScratchDir(scratchDir, document.uri);
-        }
-    });
-
-    test("dedicated command creates WebP even when text paste is preferred", async () => {
-        const { document, scratchDir } = await openScratchMarkdown();
-        const editorConfig = vscode.workspace.getConfiguration("editor");
-        const previousPreferences = editorConfig.inspect<string[]>("pasteAs.preferences")?.globalValue;
-        const config = vscode.workspace.getConfiguration("vsc-webp-paster");
-        const previousDebug = config.inspect<boolean>("debugMode")?.globalValue;
-
-        try {
-            await config.update("debugMode", true, vscode.ConfigurationTarget.Global);
-            await editorConfig.update("pasteAs.preferences", ["text"], vscode.ConfigurationTarget.Global);
-            await vscode.env.clipboard.writeText(BASE64_PNG_DATA_URL);
-            await pasteAndWait(document, COMMAND_ID);
-            await waitForResult(() => document.getText().includes("e2e-image"),
-                `dedicated command inserts WebP Markdown (got ${JSON.stringify(document.getText())})`);
-
-            const markdown = document.getText();
-            assert.match(markdown, /^!\[e2e-image(?:-\d+)?\.webp\]\(e2e-images\/e2e-image(?:-\d+)?\.webp\)$/);
-            const relativePath = markdown.match(/\((?<path>[^)]+)\)$/)?.groups?.path;
-            assert.ok(relativePath, "Dedicated command should add an image path");
-            const imageUri = vscode.Uri.joinPath(scratchDir, relativePath);
-            await waitForImageFile(imageUri);
-            assert.ok((await vscode.workspace.fs.stat(imageUri)).size > 0);
-        } finally {
-            await config.update("debugMode", previousDebug, vscode.ConfigurationTarget.Global);
             await editorConfig.update("pasteAs.preferences", previousPreferences, vscode.ConfigurationTarget.Global);
             await cleanupScratchDir(scratchDir, document.uri);
         }
@@ -426,7 +397,7 @@ suite("Extension Test Suite", () => {
             await editor.edit(edit => edit.insert(new vscode.Position(0, 0), "before after"));
             editor.selection = new vscode.Selection(0, 7, 0, 12);
             await vscode.env.clipboard.writeText("inserted");
-            await pasteAndWait(document, "editor.action.clipboardPasteAction");
+            await pasteAndWait(document);
 
             assert.strictEqual(document.getText(), "before inserted");
         } finally {
@@ -441,7 +412,7 @@ suite("Extension Test Suite", () => {
             await editor.edit(edit => edit.insert(new vscode.Position(0, 0), "alpha\nbeta"));
             editor.selections = [new vscode.Selection(0, 5, 0, 5), new vscode.Selection(1, 4, 1, 4)];
             await vscode.env.clipboard.writeText("!");
-            await pasteAndWait(document, "editor.action.clipboardPasteAction");
+            await pasteAndWait(document);
 
             assert.strictEqual(document.getText(), "alpha!\nbeta!");
         } finally {
@@ -454,7 +425,7 @@ suite("Extension Test Suite", () => {
 
         try {
             await vscode.env.clipboard.writeText("pasted text");
-            await pasteAndWait(document, "editor.action.clipboardPasteAction");
+            await pasteAndWait(document);
             assert.strictEqual(document.getText(), "pasted text");
 
             await vscode.commands.executeCommand("undo");
@@ -471,7 +442,7 @@ suite("Extension Test Suite", () => {
 
         try {
             await vscode.env.clipboard.writeText(url);
-            await pasteAndWait(document, "editor.action.clipboardPasteAction");
+            await pasteAndWait(document);
             await waitForResult(() => document.getText().includes("Example"), "URL title resolves");
 
             assert.strictEqual(document.getText(), `[Example & Docs \\[2026\\]](<${url}>)`);
@@ -489,7 +460,7 @@ suite("Extension Test Suite", () => {
         try {
             await config.update("convertUrlToLink", false, vscode.ConfigurationTarget.Global);
             await vscode.env.clipboard.writeText(url);
-            await pasteAndWait(document, "editor.action.clipboardPasteAction");
+            await pasteAndWait(document);
 
             assert.strictEqual(document.getText(), url);
         } finally {
@@ -506,7 +477,7 @@ suite("Extension Test Suite", () => {
         try {
             editor.selection = new vscode.Selection(0, 0, 0, 0);
             await vscode.env.clipboard.writeText(url);
-            await pasteAndWait(document, "editor.action.clipboardPasteAction");
+            await pasteAndWait(document);
 
             assert.strictEqual(document.getText(), url);
         } finally {
@@ -532,7 +503,7 @@ suite("Extension Test Suite", () => {
                 }
 
                 await vscode.env.clipboard.writeText(BASE64_PNG_DATA_URL);
-                await pasteAndWait(document, "editor.action.clipboardPasteAction");
+                await pasteAndWait(document);
                 await document.save();
 
                 assert.strictEqual(document.getText(), "![e2e-image-2.webp](e2e-images/e2e-image-2.webp)");

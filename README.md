@@ -24,11 +24,7 @@ Install from [Visual Studio Marketplace](https://marketplace.visualstudio.com/it
 2. Open Markdown file in VSCode
 3. Press `Ctrl+V` (or `Cmd+V` on Mac)
 
-**Alternative methods:**
-
-- Command Palette → "Paste as WebP in MD"
-
-On update, the extension's former default shortcut is replaced by VS Code's standard paste handling. Custom shortcuts assigned to `vsc-webp-paster.pasteAsWebpInMd` still work; using this command shows a brief migration notice once per profile, including when run from the Command Palette.
+The former "Paste as WebP in MD" command (`vsc-webp-paster.pasteAsWebpInMd`) was retired due to a VS Code change. If you assigned a shortcut to it, pressing it shows a notice with a button that opens that shortcut so you can remove it.
 
 ## ⚙️ Configuration
 

@@ -6,14 +6,13 @@ import { VSCodeMessageProvider } from "./message-provider";
 import { UrlUtils } from "./url-utils";
 import { logger } from "./logger";
 
-export const pasteKind = vscode.DocumentDropOrPasteEditKind.Empty.append("vsc-webp-paster");
-export const imageKind = pasteKind.append("image", "webp");
-export const linkKind = pasteKind.append("link", "title");
-const textKind = pasteKind.append("text");
+const pasteKind = vscode.DocumentDropOrPasteEditKind.Empty.append("vsc-webp-paster");
+const imageKind = pasteKind.append("image", "webp");
+const linkKind = pasteKind.append("link", "title");
 
 type PasteSource = { image: Buffer } | { url: string };
 interface WebpPasteEdit extends vscode.DocumentPasteEdit {
-    source?: PasteSource;
+    source: PasteSource;
     documentUri: vscode.Uri;
     config: ExtensionConfig;
 }
@@ -63,18 +62,16 @@ export class WebpPasteProvider implements vscode.DocumentPasteEditProvider<WebpP
         const source: PasteSource | undefined = image ? { image }
             : config.convertUrlToLink && UrlUtils.isValidUrl(text.trim()) ? { url: text.trim() }
             : undefined;
-        // Ordinary text belongs to VS Code; the explicit command also supports text.
-        if (!source && !context.only?.intersects(pasteKind)) {
+        // Ordinary text belongs to VS Code.
+        if (!source) {
             return;
         }
-        const kind = image ? imageKind : source ? linkKind : textKind;
+        const kind = image ? imageKind : linkKind;
         if (context.only && !context.only.contains(kind)) {
             return;
         }
         const edit = Object.assign(new vscode.DocumentPasteEdit(
-            source ? "" : text,
-            image ? "Paste as WebP" : source ? "Paste URL with page title" : "Paste as text",
-            kind
+            "", image ? "Paste as WebP" : "Paste URL with page title", kind
         ), { source, config, documentUri: document.uri });
         // Paste As applies the returned edit without invoking resolveDocumentPasteEdit.
         if (context.triggerKind === vscode.DocumentPasteTriggerKind.PasteAs) {
@@ -89,7 +86,7 @@ export class WebpPasteProvider implements vscode.DocumentPasteEditProvider<WebpP
 
     async resolveDocumentPasteEdit(edit: WebpPasteEdit, token: vscode.CancellationToken): Promise<WebpPasteEdit> {
         try {
-            if (!edit.source || token.isCancellationRequested) {
+            if (token.isCancellationRequested) {
                 return edit;
             }
             const { config, documentUri } = edit;
@@ -169,4 +166,4 @@ export class WebpPasteProvider implements vscode.DocumentPasteEditProvider<WebpP
     }
 }
 
-export const providedPasteKinds = [imageKind, linkKind, textKind];
+export const providedPasteKinds = [imageKind, linkKind];

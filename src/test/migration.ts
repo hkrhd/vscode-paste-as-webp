@@ -1,10 +1,10 @@
 import * as assert from "node:assert/strict";
-import { mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import * as path from "node:path";
-import sharp from "sharp";
 import { runDesktopTests } from "./desktop";
 
-const NOTICE = "This extension now uses VS Code’s built-in paste API. Please remove the shortcut for “Paste as WebP in MD” and use normal paste.";
+const PASTE_KEY = process.platform === "darwin" ? "Cmd+V" : "Ctrl+V";
+const NOTICE = `“Paste as WebP in MD” was retired due to a VS Code change. Press ${PASTE_KEY} to paste images as WebP, and remove the shortcut assigned to this command.`;
 
 export async function runShortcutMigrationTests(executable: string, baseArgs: string[], root: string): Promise<void> {
     const user = path.join(root, "migration-user");
@@ -19,95 +19,34 @@ export async function runShortcutMigrationTests(executable: string, baseArgs: st
         when: "editorTextFocus && editorLangId == markdown",
     }]));
     await writeFile(path.join(user, "User", "settings.json"), JSON.stringify({
-        "vsc-webp-paster.imageDir": "images",
-        "vsc-webp-paster.namingConvention": "image-${seq}",
         "update.mode": "none",
         "extensions.autoUpdate": false,
     }));
-    let imageCount = 0;
-    for (const restarted of [false, true]) {
-        // Launch normally with the same profile to verify the notice appears again
-        // after a full app restart.
-        await runDesktopTests(executable, [
-            ...baseArgs, "--locale=en",
-            `--user-data-dir=${user}`, `--extensions-dir=${path.join(root, "migration-extensions")}`,
-            workspace, note,
-        ], undefined, async (application, bridge) => {
-            const page = await application.firstWindow();
-            page.setDefaultTimeout(20000);
-            const editor = page.locator('.monaco-editor[data-uri$="/note.md"]');
-            await editor.waitFor();
-            await page.locator('[id="status.editor.mode"]').filter({ hasText: "Markdown" }).waitFor();
-            const modifier = process.platform === "darwin" ? "Meta" : "Control";
-            const notifications = () => page.locator(".notification-list-item-message").allTextContents();
-            async function assertNoNotice(): Promise<void> {
-                const deadline = Date.now() + 500;
-                do {
-                    assert.ok(!(await notifications()).includes(NOTICE), "Migration notice must not be shown");
-                    await page.waitForTimeout(50);
-                } while (Date.now() < deadline);
-            }
-            async function pasteImage(): Promise<void> {
-                await editor.locator(".view-lines").click();
-                await page.keyboard.press(process.platform === "darwin" ? "Meta+ArrowDown" : "Control+End");
-                const capture = await fetch(`${bridge}/capture`);
-                assert.ok(capture.ok, await capture.text());
-                const paste = await fetch(`${bridge}/paste`);
-                assert.ok(paste.ok, await paste.text());
-                imageCount++;
-                await page.waitForFunction(({ count }) => {
-                    const text = document.querySelector('.monaco-editor[data-uri$="/note.md"] .view-lines')?.textContent ?? "";
-                    return (text.match(/\.webp\)/g) ?? []).length === count;
-                }, { count: imageCount }).catch(async error => {
-                    console.error("Paste UI state:", await editor.textContent(), await notifications(),
-                        await page.locator(".statusbar-item").allTextContents());
-                    throw error;
-                });
-                const deadline = Date.now() + 10000;
-                while (true) {
-                    try {
-                        const images = await readdir(path.join(workspace, "images"));
-                        const stats = await Promise.all(images.map(name => stat(path.join(workspace, "images", name))));
-                        if (images.length === imageCount && stats.every(file => file.size > 0)) {
-                            break;
-                        }
-                    } catch (error) {
-                        if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
-                            throw error;
-                        }
-                    }
-                    assert.ok(Date.now() < deadline, "Pasted WebP files must finish saving");
-                    await page.waitForTimeout(50);
-                }
-                await page.keyboard.press(`${modifier}+s`);
-                await page.waitForFunction(() => !document.querySelector(".tab.active.dirty"));
-                const markdown = await readFile(note, "utf8");
-                const links = [...markdown.matchAll(/!\[[^\]]+\]\(images\/([^)]+\.webp)\)/g)];
-                assert.equal(links.length, imageCount, "Markdown must contain all pasted image links");
-                for (const [, name] of links) {
-                    const bytes = await readFile(path.join(workspace, "images", name));
-                    assert.equal((await sharp(bytes).metadata()).format, "webp");
-                }
-                assert.equal((await readdir(path.join(workspace, "images"))).length, imageCount);
-            }
-            await pasteImage();
-            await page.locator(".notification-list-item-message").filter({ hasText: NOTICE }).waitFor();
-            assert.equal((await notifications()).filter(message => message === NOTICE).length, 1);
-            console.log(`  ✔ Existing shortcut saves WebP and shows the migration notice once${restarted ? " after restart" : ""}`);
-            await page.keyboard.press("F1");
-            await page.locator(".quick-input-widget input").fill(">Notifications: Clear All Notifications");
-            await page.keyboard.press("Enter");
-            await page.locator(".quick-input-widget").waitFor({ state: "hidden" });
-            await page.locator(".notification-list-item-message").filter({ hasText: NOTICE }).waitFor({ state: "hidden" });
-            await editor.locator(".view-lines").click();
-            await application.evaluate(({ clipboard }) => clipboard.writeText("existing shortcut still works"));
-            await page.keyboard.press(`${modifier}+v`);
-            await editor.locator(".view-lines").filter({ hasText: "existing shortcut still works" }).waitFor();
-            await assertNoNotice();
-            await page.keyboard.press(`${modifier}+s`);
-            await page.waitForFunction(() => !document.querySelector(".tab.active.dirty"));
-            assert.ok((await readFile(note, "utf8")).includes("existing shortcut still works"));
-            console.log(`  ✔ Repeated shortcut use pastes text without another notice${restarted ? " after restart" : ""}`);
-        });
-    }
+    await runDesktopTests(executable, [
+        ...baseArgs, "--locale=en",
+        `--user-data-dir=${user}`, `--extensions-dir=${path.join(root, "migration-extensions")}`,
+        workspace, note,
+    ], undefined, async (application, bridge) => {
+        const page = await application.firstWindow();
+        page.setDefaultTimeout(20000);
+        const editor = page.locator('.monaco-editor[data-uri$="/note.md"]');
+        await editor.waitFor();
+        await page.locator('[id="status.editor.mode"]').filter({ hasText: "Markdown" }).waitFor();
+        await editor.locator(".view-lines").click();
+        const capture = await fetch(`${bridge}/capture`);
+        assert.ok(capture.ok, await capture.text());
+        const paste = await fetch(`${bridge}/paste`);
+        assert.ok(paste.ok, await paste.text());
+
+        const notice = page.locator(".notification-list-item").filter({ hasText: NOTICE });
+        await notice.waitFor();
+        assert.equal((await editor.locator(".view-lines").textContent())?.trim(), "", "The retired command must not paste");
+        console.log("  ✔ Existing shortcut explains the retired command");
+
+        await notice.getByRole("button", { name: "Open Shortcut" }).click();
+        const rows = page.locator(".keybindings-editor .monaco-list-row");
+        await rows.filter({ hasText: "Paste as WebP in MD" }).waitFor();
+        assert.equal(await rows.count(), 1, "Keyboard Shortcuts must show only the retired command");
+        console.log("  ✔ Notice button opens the shortcut to remove");
+    });
 }

@@ -1,6 +1,6 @@
 {
-  "This extension now uses VS Code’s built-in paste API. Please remove the shortcut for “Paste as WebP in MD” and use normal paste.": "VS Code 標準のペースト API に移行しました。「Paste as WebP in MD」のショートカット割り当てを解除し、通常のペーストをご利用ください。",
-  "extension.noActiveEditor": "アクティブなエディタがありません。",
+  "“Paste as WebP in MD” was retired due to a VS Code change. Press {0} to paste images as WebP, and remove the shortcut assigned to this command.": "VS Code の仕様変更により「Paste as WebP in MD」は廃止されました。{0} で貼り付ければ画像は WebP で保存されます。このコマンドに割り当てたショートカットを削除してください。",
+  "Open Shortcut": "ショートカットを開く",
   "extension.error": "エラーが発生しました: {0}",
   "extension.showDetails": "詳細を表示",
   "pasteCommand.configError": "設定エラー: {0}",
