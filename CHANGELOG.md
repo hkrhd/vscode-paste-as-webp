@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/hkrhd/vscode-paste-as-webp/compare/v1.0.0...v1.0.1) (2026-11-22)
+
+
+### Bug Fixes
+
+* 旧コマンドを廃止し標準貼り付けへの移行通知を出す ([80eca13](https://github.com/hkrhd/vscode-paste-as-webp/commit/80eca13b7d4d34258b674ed5558ca765ed185c54))
+
 # [1.0.0](https://github.com/hkrhd/vscode-paste-as-webp/compare/v0.7.5...v1.0.0) (2026-11-22)
 
 
