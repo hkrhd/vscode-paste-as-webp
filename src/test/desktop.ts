@@ -2,13 +2,33 @@ import { _electron as electron, ElectronApplication } from "playwright";
 import { createServer } from "node:http";
 import { AddressInfo } from "node:net";
 import { randomUUID } from "node:crypto";
+import sharp from "sharp";
 import { SshFixture } from "./ssh/podman";
+
+// Decoding with sharp inside Electron's Linux extension host can segfault
+// (https://sharp.pixelplumbing.com/install#electron-and-linux), so image
+// assertions run in this Node.js process instead.
+async function meanPixelDifference(expected: Buffer, actual: Buffer): Promise<{ format?: string; width: number; height: number; expectedWidth: number; expectedHeight: number; difference: number }> {
+    const decode = (image: Buffer) => sharp(image).removeAlpha().toColourspace("srgb").raw().toBuffer({ resolveWithObject: true });
+    const [original, decoded] = await Promise.all([decode(expected), decode(actual)]);
+    let difference = 0;
+    for (let i = 0; i < Math.min(original.data.length, decoded.data.length); i++) {
+        difference += Math.abs(decoded.data[i] - original.data[i]);
+    }
+    return {
+        format: (await sharp(actual).metadata()).format,
+        width: decoded.info.width, height: decoded.info.height,
+        expectedWidth: original.info.width, expectedHeight: original.info.height,
+        difference: difference / decoded.data.length,
+    };
+}
 
 // The bridge operates only the isolated test window and its OS clipboard.
 export async function runDesktopTests(executablePath: string, args: string[], fixture?: SshFixture, scenario?: (application: ElectronApplication, bridge: string) => Promise<void>): Promise<void> {
     let application: ElectronApplication | undefined;
     let launchedProcess: ReturnType<ElectronApplication["process"]> | undefined;
     const secret = randomUUID();
+    let capturedPng: Buffer | undefined;
     const server = createServer(async (request, response) => {
         try {
             const url = new URL(request.url ?? "/", "http://localhost");
@@ -28,7 +48,8 @@ export async function runDesktopTests(executablePath: string, args: string[], fi
                     clipboard.writeImage(image);
                     return image.toPNG().toString("base64");
                 });
-                response.end(JSON.stringify({ png }));
+                capturedPng = Buffer.from(png, "base64");
+                response.end("{}");
             } else if (action === "paste") {
                 const page = await application.firstWindow();
                 await page.bringToFront();
@@ -37,6 +58,9 @@ export async function runDesktopTests(executablePath: string, args: string[], fi
             } else if (action === "notifications") {
                 const page = await application.firstWindow();
                 response.end(JSON.stringify({ notifications: await page.locator(".notification-list-item-message").allTextContents() }));
+            } else if (action === "compare" && fixture && capturedPng) {
+                const saved = await fixture.readFile(url.searchParams.get("path") ?? "");
+                response.end(JSON.stringify(await meanPixelDifference(capturedPng, saved)));
             } else if (action === "read" && fixture) {
                 const bytes = await fixture.readFile(url.searchParams.get("path") ?? "");
                 response.end(JSON.stringify({ bytes: bytes.toString("base64") }));
